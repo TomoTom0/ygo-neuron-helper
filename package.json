@@ -1,0 +1,28 @@
+{
+  "name": "ygo-deck-helper",
+  "version": "0.1.0",
+  "description": "遊戯王公式サイトのデッキ管理を快適にするChrome拡張機能",
+  "scripts": {
+    "build": "tsc && npm run copy-files",
+    "copy-files": "cp public/manifest.json dist/ && cp -r public/icons dist/ 2>/dev/null || true && cp src/popup/popup.html dist/",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "yugioh",
+    "deck",
+    "chrome-extension"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "@types/node": "^22.0.0",
+    "copy-webpack-plugin": "^12.0.0",
+    "html-webpack-plugin": "^5.6.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.5.0",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^5.1.0"
+  }
+}
