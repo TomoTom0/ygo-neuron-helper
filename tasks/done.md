@@ -266,3 +266,214 @@
   - 各機能の実装方法と参照すべき調査結果
   - 実装チェックリスト
   - トラブルシューティングガイド
+
+## カード検索とタイプ判定の詳細調査（2025-11-04 完了）
+- [x] DOM属性ベースのカードタイプ判定方法の確立
+  - [x] ユーザーからの重要なフィードバック対応
+    - テキストベースではなくDOM属性での判定を推奨される
+  - [x] img要素のsrc属性を使用した判定ロジックの実装
+    - `attribute_icon_spell.png` → 魔法カード
+    - `attribute_icon_trap.png` → 罠カード
+    - `attribute_icon_(light|dark|water|fire|earth|wind|divine).png` → モンスターカード
+  - [x] ロケール非依存の実装確認
+    - 日本語、英語、韓国語などすべてのロケールで動作
+  - [x] テキストベース判定の非推奨化を明記
+- [x] ctypeパラメータの正確な値の確認
+  - [x] 以前の調査での矛盾点の発見
+    - ctype=2でspellカード、ctype=3でtrapカードが返されていた
+  - [x] 実際のHTML構造のダンプと確認
+    - ctypeはラジオボタンではなくselectボックス
+  - [x] 正確なマッピングの確定
+    - 空文字列: すべてのカード
+    - 1: モンスターカード
+    - 2: 魔法カード
+    - 3: 罠カード
+  - [x] HTMLダンプによる検証スクリプトの作成
+    - dump-search-page-html.js
+    - simple-ctype-check.js
+- [x] ブラウザJavaScriptからのfetch操作の調査
+  - [x] Content Scriptsからのfetch動作確認
+    - Playwrightのpage.evaluate内でfetch成功
+  - [x] DOMParserでのHTML解析動作確認
+    - fetchしたHTMLをDOMParserでパース可能
+  - [x] CORS制限がないことの確認
+    - 同一オリジン内なので問題なし
+  - [x] Chrome拡張での実装方針の確立
+    - Content Scripts内でfetchとDOMParserを使用可能
+- [x] 調査スクリプトの作成
+  - [x] investigate-card-type-by-dom.js（DOM属性ベースのカードタイプ判定）
+  - [x] investigate-ctype-parameter.js（ctypeパラメータ調査）
+  - [x] test-correct-card-type-detection.js（カードタイプ判定テスト）
+  - [x] dump-search-page-html.js（ページHTML構造確認）
+  - [x] simple-ctype-check.js（ctypeフィールド確認）
+  - [x] check-ctype-form.js（ctypeフォーム構造確認）
+- [x] ドキュメント更新
+  - [x] docs/research/api-investigation-results.md
+    - カード検索機能セクションを追加
+    - ctypeパラメータの詳細
+    - カードタイプ判定方法（推奨・非推奨）
+    - ブラウザJavaScriptからのfetch操作
+    - 調査日時の更新（2025-11-04）
+- [x] タスク管理ファイルの更新
+  - [x] tasks/wip.md - 今回の調査完了を記録
+  - [x] tasks/done.md - 完了タスクとして追加
+
+## Chrome拡張の基盤実装（TDD）（2025-11-04 完了）
+- [x] TDD環境のセットアップ
+  - [x] Jest設定ファイルの作成（jest.config.js）
+  - [x] TypeScript設定の更新（@typesの追加）
+  - [x] パスマッピングの設定（@/* → src/*）
+  - [x] テスト実行環境の確認（48テストすべてパス）
+- [x] 型定義の実装（extension/src/types/）
+  - [x] CardType、CardInfo、DeckCard型の定義
+  - [x] CardTypeFields型の定義（カードタイプ別フィールドマッピング）
+  - [x] DeckInfo、OperationResult型の定義
+  - [x] SessionInfo型の定義（cgid、ytkn）
+- [x] カードタイプ判定関数の実装（extension/src/content/card/detector.ts）
+  - [x] テスト作成（14テスト、全パス）
+  - [x] DOM属性ベースの判定実装（img src属性を使用）
+  - [x] ロケール非依存の実装確認
+  - [x] 7種類の属性アイコン対応（光、闇、水、炎、地、風、神）
+- [x] セッション情報取得関数の実装（extension/src/content/session/session.ts）
+  - [x] テスト作成（9テスト、全パス）
+  - [x] getCgid関数の実装（Cookieから取得）
+  - [x] getYtkn関数の実装（DOMから取得）
+- [x] HTMLパーサー関数の実装（extension/src/content/parser/deck-parser.ts）
+  - [x] テスト作成（8テスト、全パス）
+  - [x] parseCardRow関数の実装（カード行→DeckCard）
+  - [x] parseDeckPage関数の実装（ページ全体→DeckInfo）
+  - [x] カードタイプ別フィールドマッピングの実装
+  - [x] メイン・エクストラ・サイドデッキの抽出
+- [x] デッキ操作API関数の実装（extension/src/api/deck-operations.ts）
+  - [x] テスト作成（8テスト、全パス）
+  - [x] createNewDeck関数（ope=6）
+  - [x] duplicateDeck関数（ope=8）
+  - [x] saveDeck関数（ope=3）
+  - [x] deleteDeck関数（ope=7）
+  - [x] FormData構築処理（カードタイプ別フィールド対応）
+- [x] カード検索API関数の実装（extension/src/api/card-search.ts）
+  - [x] テスト作成（9テスト、全パス）
+  - [x] searchCardsByName関数（キーワード検索）
+  - [x] searchCardById関数（ID検索）
+  - [x] ctypeパラメータ対応（モンスター=1、魔法=2、罠=3）
+  - [x] 検索結果パース処理（parseSearchResults）
+
+## cgid取得の重大な問題発見と修正（2025-11-04）
+- [x] HttpOnly属性によるcookie読み取り不可の発見
+  - [x] `yugiohdb_cgid`はHttpOnly属性付きでJavaScriptから読み取り不可
+  - [x] `document.cookie`からのcgid取得が最初から不可能だったことを確認
+- [x] getCgid関数の実装修正（session.ts）
+  - [x] cookieからの取得方法を削除
+  - [x] HTMLからの取得に変更
+    - hidden inputからの取得
+    - リンクのhref属性からの取得
+    - HTML全体から正規表現で抽出
+  - [x] 実際の動作確認（cgid: 3d839f01a4d87b01928c60f262150bec取得成功）
+- [x] テストの修正
+  - [x] cookie関連のテストを削除
+  - [x] DOM要素からの取得テストに変更
+  - [x] 5つの新しいテストケース作成
+- [x] カード検索でのcgid不要性の確認
+  - [x] URLSearchParams + `credentials: 'include'`のみで動作
+  - [x] cgidパラメータ不要
+  - [x] デッキ操作ではcgidが必要（URLパラメータとして）
+
+## テストUIの実装と動作確認（2025-11-04）
+- [x] テストUI実装（extension/src/content/test-ui/index.ts）
+  - [x] #/ytomo/test URLでの起動
+  - [x] div#bgの内容書き換えによる表示
+  - [x] 5つのテストセクション作成
+  - [x] 8つのテストボタン配置
+- [x] ページちらつき問題の修正
+  - [x] document.body.innerHTML書き換えによる問題発見
+  - [x] div#bgのみ書き換える方式に修正
+  - [x] 公式サイトSPAとの競合解消
+- [x] build & deploy
+  - [x] TypeScriptコンパイル
+  - [x] rsyncでデプロイ先に配置
+- [x] 実際の動作確認
+  - [x] テストUI表示確認（✅）
+  - [x] カード検索動作確認（✅ 10件取得）
+  - [x] cgid取得動作確認（✅ HTMLから取得）
+  - [x] スクリーンショット撮影（tmp/test-ui-actual.png）
+
+## 調査スクリプトの作成（2025-11-04）
+- [x] tmp/check-all-cookies.js（すべてのcookie詳細確認）
+  - HttpOnly属性の確認
+  - yugiohdb_cgidがHttpOnlyであることを特定
+  - HTML内のcgid埋め込み箇所の発見
+- [x] tmp/test-getcgid-fixed.js（修正後のgetCgid動作確認）
+- [x] tmp/test-simple-card-search.js（シンプルなカード検索）
+- [x] tmp/test-ui-actual.js（テストUI総合動作確認）
+- [x] tmp/test-without-cgid-param.js（cgidパラメータ不要性確認）
+
+## カード検索API修正とビルドシステム修正（2025-11-04 完了）
+- [x] カード検索APIの重大な問題発見と修正
+  - [x] 問題1: APIパラメータの不足
+    - `request_locale: 'ja'`を使用していたが、実際には不要
+    - 必須パラメータ不足: `sess`, `stype`, `othercon`, `link_m`
+    - 空パラメータ（starfr, starto等）も必要
+  - [x] 問題2: DOM セレクタの誤り
+    - input要素は`name`属性ではなく`class`属性を使用
+    - `input[name="cid"]` → `input.cid` に修正
+    - `input[name="img_no"]` → `input.lang` に修正
+  - [x] 修正実施（extension/src/api/card-search.ts）
+    - searchCardsByName関数のパラメータ修正
+    - parseSearchResultRow関数のセレクタ修正
+- [x] ビルドシステムの重大な問題発見と修正
+  - [x] 問題: TypeScript出力構造とデプロイスクリプトの不一致
+    - tsconfig.jsonのoutDirが`./dist`だが、deploy.shは`extension/dist/`を期待
+    - rootDirが`.`だったため、`extension/dist/src/`のようなネスト構造が生成
+    - manifest.jsonのファイルパスが実際の出力と不一致
+  - [x] 修正実施
+    - tsconfig.json: rootDir=`./src`, outDir=`./extension/dist`に変更
+    - package.json: copy-filesスクリプトを修正
+    - manifest.json: ファイルパスを実際の出力構造に合わせて修正
+      - content.js → content/index.js
+      - background.js → background/index.js
+      - popup.html → popup/popup.html
+- [x] 検証作業
+  - [x] tmp/test-card-search-api-direct.js（API直接テスト、10件成功）
+  - [x] tmp/inspect-card-row-html.js（HTML構造調査）
+  - [x] tmp/test-fixed-card-search-debug.js（デバッグ版テスト）
+  - [x] tmp/test-final-card-search.js（最終版テスト）
+  - [x] ビルド成功確認（extension/dist/に正しい構造で出力）
+  - [x] デプロイ成功確認（/home/tomo/user/Mine/_chex/src_ygoNeuronHelperに配置）
+- [x] 調査結果のドキュメント化
+  - カード検索結果のHTML構造（tmp/card-search-result.html保存）
+  - input要素の実際の構造確認（class属性使用、name属性なし）
+  - 正しいセレクタの特定
+
+## ESモジュールエラーの修正とポストビルドシステムの構築（2025-11-04 完了）
+- [x] 問題発見: Chrome拡張でのESモジュール構文エラー
+  - [x] ユーザー報告: `Uncaught SyntaxError: Unexpected token 'export' (at index.js:84:1)`
+  - [x] 原因特定: TypeScriptがコンパイル時に追加する`export {}`がChrome拡張で問題を引き起こす
+  - [x] 調査: Playwrightを使用した拡張機能ロードテストを実施
+- [x] 最初の修正試行: manifest.jsonに`"type": "module"`を追加
+  - [x] Content Scriptに`"type": "module"`を追加
+  - [x] Background Service Workerにも`"type": "module"`を追加
+  - [x] 結果: Playwrightが使用するChromiumのバージョンで十分にサポートされず、エラーが継続
+- [x] 最終的な解決策: ポストビルドスクリプトによる`export {}`の削除
+  - [x] scripts/post-build.js の作成
+    - `export {};`を自動的に削除するスクリプト
+    - extension/dist/内のすべてのJSファイルを再帰的に処理
+  - [x] package.jsonのビルドスクリプトを更新
+    - `npm run build`に`npm run post-build`を追加
+  - [x] manifest.jsonから`"type": "module"`を削除
+    - Background Service Worker設定から削除
+    - Content Scripts設定から削除
+- [x] 検証作業
+  - [x] tmp/verify-extension-loads.js（初期テスト）
+  - [x] tmp/verify-extension-loads-fresh.js（フレッシュプロファイルでのテスト）
+  - [x] ビルド成功確認（3つのファイルから`export {}`削除）
+    - background/index.js
+    - content/index.js
+    - popup/index.js
+  - [x] 拡張機能ロード成功確認
+    - Content Script正常ロード確認
+    - コンソールログ出力確認: "Yu-Gi-Oh! Deck Helper: Content script loaded"
+    - "Detected card search page"表示確認
+  - [x] エラー解消確認: `Unexpected token 'export'`エラーが完全に解消
+- [x] デプロイ成功確認
+  - /home/tomo/user/Mine/_chex/src_ygoNeuronHelperに正しく配置
+  - manifest.jsonも正しく更新
