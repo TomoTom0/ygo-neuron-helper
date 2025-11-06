@@ -793,3 +793,52 @@
 ### バージョン更新
 - v0.1.0 → v0.2.0（新機能の追加: ciid/imgHash取得）
 
+
+---
+
+## モンスターカード型定義の改善とリンクモンスター対応（2025-11-06）
+
+### 実施内容
+1. **型定義の改善**
+   - [x] levelValue: オプショナル → 必須（すべてのモンスターが必ず持つ）
+   - [x] LevelType: `null`を削除（必ず level/rank/link のいずれか）
+   - [x] linkMarkers: 新規追加（8bit整数、リンクマーカーの向き）
+
+2. **リンクモンスター対応**
+   - [x] `.box_card_linkmarker`セレクタの実装
+   - [x] リンク数（levelValue）の取得実装
+   - [x] 守備力なし（def: undefined）の確認
+
+3. **テストデータの修正**
+   - [x] deck-operations.test.ts: levelValue追加
+   - [x] deck-parser.ts: levelType/levelValue修正（null → 'level', 0）
+
+### 修正ファイル
+- `extension/src/types/card.ts`
+  - MonsterCard: levelValue必須化、linkMarkers追加
+  - LevelType: nullを削除
+- `extension/src/api/card-search.ts`
+  - parseMonsterCard: リンクモンスター判定とリンク数取得
+  - levelType/levelValue の必須化対応
+- `extension/src/api/__tests__/deck-operations.test.ts`
+- `extension/src/content/parser/deck-parser.ts`
+
+### ビルドとデプロイ
+- [x] TypeScriptコンパイル成功
+- [x] webpackビルド成功（content.js: 20.2KB）
+- [x] デプロイ完了
+
+### テスト結果（リンクリボー）
+- **levelType**: 'link' ✅
+- **levelValue**: 1 ✅
+- **def**: undefined ✅
+- **linkMarkers**: undefined（向き情報は未実装）
+
+### 残タスク
+- [ ] linkMarkersの向き情報の取得方法調査
+  - HTMLに明示的な情報がない可能性
+  - カード詳細ページまたはJavaScriptコードから取得が必要
+
+### バージョン更新
+- v0.2.0 → v0.3.0（型定義の改善とリンクモンスター対応）
+
