@@ -289,8 +289,9 @@ function parseMonsterCard(row: HTMLElement, base: CardBase): MonsterCard | null 
 
   // レベル/ランク/リンク取得
   const levelRankElem = row.querySelector('.box_card_level_rank');
-  let levelType: LevelType = null;
-  let levelValue: number | undefined;
+  const linkMarkerElem = row.querySelector('.box_card_linkmarker');
+  let levelType: LevelType;
+  let levelValue: number;
 
   if (levelRankElem) {
     // class名から種別判定
@@ -298,6 +299,8 @@ function parseMonsterCard(row: HTMLElement, base: CardBase): MonsterCard | null 
       levelType = 'level';
     } else if (levelRankElem.classList.contains('rank')) {
       levelType = 'rank';
+    } else {
+      levelType = 'level'; // デフォルト
     }
 
     // アイコンからも種別を判定（二重チェック）
@@ -316,13 +319,31 @@ function parseMonsterCard(row: HTMLElement, base: CardBase): MonsterCard | null 
       const match = levelSpan.textContent.match(/\d+/);
       if (match) {
         levelValue = parseInt(match[0], 10);
+      } else {
+        return null; // レベル/ランク値が取得できない
       }
+    } else {
+      return null;
     }
-  } else {
-    // レベル/ランク要素が存在しない → リンクモンスター
+  } else if (linkMarkerElem) {
+    // リンクモンスター
     levelType = 'link';
 
-    // TODO: リンク数の取得（別の場所にある可能性、要調査）
+    // リンク数取得: "リンク 1" → 1
+    const linkSpan = linkMarkerElem.querySelector('span');
+    if (linkSpan?.textContent) {
+      const match = linkSpan.textContent.match(/\d+/);
+      if (match) {
+        levelValue = parseInt(match[0], 10);
+      } else {
+        return null; // リンク数が取得できない
+      }
+    } else {
+      return null;
+    }
+  } else {
+    // レベル/ランク/リンク要素が存在しない
+    return null;
   }
 
   // 種族・タイプ取得（必須）
@@ -376,6 +397,14 @@ function parseMonsterCard(row: HTMLElement, base: CardBase): MonsterCard | null 
     pendulumEffect = pendulumEffectElem.textContent.trim();
   }
 
+  // リンクマーカー取得（TODO: 向きの情報を取得する方法を調査）
+  let linkMarkers: number | undefined;
+  if (levelType === 'link') {
+    // リンクマーカーの向きはHTMLに明示的に含まれていない可能性
+    // カード詳細ページやJavaScriptコードから取得が必要
+    linkMarkers = undefined;
+  }
+
   // エクストラデッキ判定
   const isExtraDeck = isExtraDeckMonster(row);
 
@@ -389,6 +418,7 @@ function parseMonsterCard(row: HTMLElement, base: CardBase): MonsterCard | null 
     types,
     atk,
     def,
+    linkMarkers,
     pendulumScale,
     pendulumEffect,
     isExtraDeck

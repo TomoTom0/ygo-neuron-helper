@@ -14,7 +14,7 @@ export type CardType = 'モンスター' | '魔法' | '罠';
 /**
  * レベル/ランク/リンクの種別
  */
-export type LevelType = 'level' | 'rank' | 'link' | null;
+export type LevelType = 'level' | 'rank' | 'link';
 
 /**
  * カード基本情報（全カードタイプ共通）
@@ -48,8 +48,8 @@ export interface MonsterCard extends CardBase {
 
   /** レベル/ランク/リンクの種別 */
   levelType: LevelType;
-  /** レベル/ランク/リンク値（オプション） */
-  levelValue?: number;
+  /** レベル/ランク/リンク値（必須、すべてのモンスターが持つ） */
+  levelValue: number;
 
   /** 種族 */
   race: Race;
@@ -58,12 +58,18 @@ export interface MonsterCard extends CardBase {
 
   /** 攻撃力（オプション、数値または "?", "X000" など） */
   atk?: number | string;
-  /** 守備力（オプション、数値または "?", "X000" など） */
+  /** 守備力（オプション、リンクモンスターは持たない） */
   def?: number | string;
 
-  /** ペンデュラムスケール（オプション） */
+  /** リンクマーカー（オプション、リンクモンスターのみ、8bit整数）
+   * bit 0: 上, bit 1: 右上, bit 2: 右, bit 3: 右下,
+   * bit 4: 下, bit 5: 左下, bit 6: 左, bit 7: 左上
+   */
+  linkMarkers?: number;
+
+  /** ペンデュラムスケール（オプション、ペンデュラムモンスターのみ） */
   pendulumScale?: number;
-  /** ペンデュラム効果（オプション） */
+  /** ペンデュラム効果（オプション、ペンデュラムモンスターのみ） */
   pendulumEffect?: string;
 
   /** エクストラデッキに入るかどうか */

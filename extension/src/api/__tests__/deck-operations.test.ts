@@ -106,6 +106,7 @@ describe('デッキ操作API', () => {
               cardType: 'モンスター' as const,
               attribute: 'dark' as const,
               levelType: 'level' as const,
+              levelValue: 7,
               race: 'spellcaster' as const,
               types: ['normal' as const],
               isExtraDeck: false

@@ -83,7 +83,8 @@ export function parseCardRow(row: HTMLElement): DeckCard | null {
       imageId,
       cardType: 'モンスター',
       attribute: 'light', // デッキページからは取得不可、後で更新が必要
-      levelType: null, // デッキページからは取得不可、後で更新が必要
+      levelType: 'level', // デッキページからは取得不可、後で更新が必要
+      levelValue: 0, // デッキページからは取得不可、後で更新が必要
       race: 'dragon', // デッキページからは取得不可、後で更新が必要
       types: [], // デッキページからは取得不可、後で更新が必要
       isExtraDeck: false // デッキページからは正確に判定不可、後で更新が必要
