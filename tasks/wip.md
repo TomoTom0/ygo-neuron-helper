@@ -27,12 +27,17 @@
 3. ✅ downloadDeckRecipeImage()の実装
    - ファイル名生成
    - ダウンロード実行
-4. ✅ TypeScriptコンパイル確認
+4. ✅ fetchDeckData()の実装
+   - getDeckName(): 新UI/旧UI両対応
+   - getCardImagesFromSection(): #deck_imageからURL取得
+   - getIsPublic(): 公開フラグ取得（仮実装）
+5. ✅ TypeScriptコンパイル確認
 
 ### 残課題
-- [ ] fetchDeckData()の実装（DOMまたはAPI経由でデッキデータを取得）
 - [ ] カードバック画像の追加と描画
 - [ ] QRコード生成（Phase 3）
+- [ ] getIsPublic()の完全実装
+- [ ] UI統合（ボタン追加、イベントハンドラ）
 - [ ] ユニットテスト作成
 
 ---
