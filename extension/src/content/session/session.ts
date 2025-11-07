@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   createNewDeckInternal,
   duplicateDeckInternal,
@@ -67,18 +68,13 @@ class SessionManager {
 
     const cgid = await this.ensureCgid();
 
-    // デッキ編集ページをfetch
+    // デッキ編集ページを取得
     const url = `https://www.db.yugioh-card.com/yugiohdb/member_deck.action?ope=2&dno=${dno}&cgid=${cgid}&request_locale=ja`;
-    const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include'
+    const response = await axios.get(url, {
+      withCredentials: true
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch deck edit page: ${response.status}`);
-    }
-
-    const html = await response.text();
+    const html = response.data;
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 

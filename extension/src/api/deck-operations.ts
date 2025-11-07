@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { DeckInfo, OperationResult } from '@/types/deck';
 import { DeckCard } from '@/types/card';
 
@@ -12,16 +13,11 @@ const BASE_URL = 'https://www.db.yugioh-card.com/yugiohdb/member_deck.action';
  */
 export async function createNewDeckInternal(cgid: string): Promise<number> {
   try {
-    const response = await fetch(`${BASE_URL}?ope=6&cgid=${cgid}`, {
-      method: 'GET',
-      credentials: 'include'
+    const response = await axios.get(`${BASE_URL}?ope=6&cgid=${cgid}`, {
+      withCredentials: true
     });
 
-    if (!response.ok) {
-      return 0;
-    }
-
-    const html = await response.text();
+    const html = response.data;
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
@@ -45,16 +41,11 @@ export async function createNewDeckInternal(cgid: string): Promise<number> {
  */
 export async function duplicateDeckInternal(cgid: string, dno: number): Promise<number> {
   try {
-    const response = await fetch(`${BASE_URL}?ope=8&cgid=${cgid}&dno=${dno}`, {
-      method: 'GET',
-      credentials: 'include'
+    const response = await axios.get(`${BASE_URL}?ope=8&cgid=${cgid}&dno=${dno}`, {
+      withCredentials: true
     });
 
-    if (!response.ok) {
-      return 0;
-    }
-
-    const html = await response.text();
+    const html = response.data;
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
@@ -120,20 +111,11 @@ export async function saveDeckInternal(
       appendCardToFormData(formData, card, 'side');
     });
 
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
+    const response = await axios.post(BASE_URL, formData, {
+      withCredentials: true
     });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        error: [`HTTP error: ${response.status}`]
-      };
-    }
-
-    const html = await response.text();
+    const html = response.data;
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
@@ -178,20 +160,11 @@ export async function deleteDeckInternal(
     formData.append('dno', dno.toString());
     formData.append('ytkn', ytkn);
 
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
+    const response = await axios.post(BASE_URL, formData, {
+      withCredentials: true
     });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        error: [`HTTP error: ${response.status}`]
-      };
-    }
-
-    const html = await response.text();
+    const html = response.data;
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
