@@ -57,19 +57,35 @@
    - デッキ編集機能で使用
    - `extractCardImageUrls()`の呼び出しを削除（編集ページには存在しないため）
 
+### 完了した追加タスク（2025-11-07）
+1. ✅ **`parseDeckDetail()`の実装**
+   - 表示ページ（ope=1）専用パーサーを新規作成
+   - 既存の`parseSearchResultRow()`を再利用してコード重複を削減
+   - `tr.row`構造から正しくカード情報を取得
+   - テーブル: `#monster_list`, `#spell_list`, `#trap_list`, `#extra_list`, `#side_list`
+
+2. ✅ **`buildCardImageUrl()`関数の追加**
+   - `extension/src/api/card-search.ts`に追加
+   - カード画像URL構築を一元化
+   - `cardId`, `imageId`, `ciid`, `imgHash`から画像URLを構築
+
+3. ✅ **`createDeckRecipeImage.ts`の修正**
+   - `buildCardImageUrl()`を使用して画像URLを取得
+   - `parseDeckDetail()`を使用して表示ページからデータ取得
+   - main/extra/sideの3箇所で更新
+
+4. ✅ **既存関数のエクスポート**
+   - `parseSearchResultRow()`と`extractImageInfo()`をエクスポート
+   - 複数の場所で再利用可能に
+
+### バージョン
+- v0.0.3 → v0.0.4（パッチバージョンアップ）
+
 ### 次のタスク（優先）
-1. **`parseDeckDetail()`の実装**
-   - [ ] 表示ページのHTML構造に基づいて実装
-   - [ ] カード画像URL、カードID、カード名、枚数を抽出
-   - [ ] 型定義はCardBase（imageUrl付き）を使用
-
-2. **`parseDeckPage()`の修正**
-   - [ ] `extractCardImageUrls()`の呼び出しを削除
-   - [ ] ドキュメントコメントで編集ページ専用と明記
-
-3. **`createDeckRecipeImage.ts`の修正**
-   - [ ] 重複している`fetchDeckData()`等を削除
-   - [ ] `parseDeckDetail()`を使用するように変更
+1. **UI統合**
+   - [ ] デッキ表示ページにボタンを追加
+   - [ ] イベントハンドラの実装
+   - [ ] カラー選択UI（赤/青）
 
 ### 残課題（Phase 2以降）
 - [ ] カードバック画像の追加と描画

@@ -2,6 +2,46 @@
 
 完了したタスク
 
+## 2025-11-07: parseDeckDetailの再実装とbuildCardImageUrl関数の追加
+
+### 実装内容
+
+#### 1. deck-detail-parser.tsの作成
+- デッキ表示ページ（ope=1）専用のパーサーを新規作成
+- **既存の`parseSearchResultRow()`を再利用**してコード重複を削減
+- `tr.row`構造から正しくカード情報を取得
+  - テーブル: `#monster_list`, `#spell_list`, `#trap_list`, `#extra_list`, `#side_list`
+  - カード情報: `td.card_name`, `input.link_value`から取得
+  - 枚数: `td.num span`から取得
+
+#### 2. buildCardImageUrl()関数の追加
+- `extension/src/api/card-search.ts`に追加
+- カード画像URL構築を一元化
+- `cardId`, `imageId`, `ciid`, `imgHash`から画像URLを構築
+- 必要な時にURLを構築する設計（パース時には構築しない）
+
+#### 3. createDeckRecipeImage.tsの更新
+- `buildCardImageUrl()`を使用して画像URLを取得
+- `parseDeckDetail()`を使用して表示ページからデータ取得
+- main/extra/sideの3箇所で`buildCardImageUrl()`を使用
+
+#### 4. 既存関数のエクスポート
+- `parseSearchResultRow()`と`extractImageInfo()`をエクスポート
+- 複数の場所で再利用可能に
+
+### 改善点
+- ✅ コード重複の削減
+- ✅ 関数の再利用性向上
+- ✅ 正しいDOM構造からのパース
+- ✅ 画像URL構築の一元化
+
+### デプロイ
+- バージョン: 0.0.3 → 0.0.4
+- デプロイ先: `/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`
+- コミット: `24ff260` (feature/deck-recipe-image)
+
+---
+
 ## 2025-11-07: デッキレシピ画像作成機能 Phase 1 完了
 
 ### 実装内容
