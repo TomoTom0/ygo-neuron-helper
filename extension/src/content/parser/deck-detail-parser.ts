@@ -74,24 +74,27 @@ function validateDeckDetailPageStructure(doc: Document): void {
     throw new Error('#main980 > #article_body > #deck_detailtext > #detailtext_mainが見つかりません。デッキ表示ページではありません。');
   }
 
-  // 2. 必須のdiv.t_bodyを検証（#detailtext_main配下）
-  const requiredSections = [
+  // 2. カードセクションの検証（存在するセクションのみ検証）
+  const sections = [
     { selector: '.t_body.mlist_m', name: 'モンスターカードセクション' },
     { selector: '.t_body.mlist_s', name: '魔法カードセクション' },
     { selector: '.t_body.mlist_t', name: '罠カードセクション' }
   ];
 
   const errors: string[] = [];
+  let foundSections = 0;
 
-  for (const section of requiredSections) {
+  for (const section of sections) {
     const tBody = detailtextMain.querySelector(section.selector);
     
+    // セクションが存在しない場合はスキップ（エラーではない）
     if (!tBody) {
-      errors.push(`${section.name}(${section.selector})が#detailtext_main配下に見つかりません`);
       continue;
     }
     
-    // div.t_row構造が取得可能か検証
+    foundSections++;
+    
+    // セクションが存在する場合、その内部構造を検証
     try {
       tBody.querySelectorAll('.t_row');
     } catch (e) {
@@ -114,6 +117,12 @@ function validateDeckDetailPageStructure(doc: Document): void {
     }
   }
 
+  // 少なくとも1つのカードセクションが見つからない場合はエラー
+  if (foundSections === 0) {
+    throw new Error('デッキ表示ページにカードセクション(.t_body.mlist_m/s/t)が1つも見つかりません');
+  }
+
+  // 内部構造にエラーがある場合
   if (errors.length > 0) {
     throw new Error(
       `デッキ表示ページのDOM構造が不正です:\n${errors.map(e => `  - ${e}`).join('\n')}`
