@@ -1,37 +1,32 @@
-import { getCgid, getYtkn } from '../session';
+import { sessionManager, getCgid } from '../session';
 
 /**
- * セッション情報取得関数のテスト
+ * SessionManager のテスト
  *
- * 注意: getCgid/getYtknはfetchを使用してサーバーからHTMLを取得するため、
+ * 注意: SessionManagerはfetchを使用してサーバーからHTMLを取得するため、
  * 実際のネットワークリクエストが必要。モックが必要な場合は別途実装。
  */
-describe('セッション情報取得', () => {
+describe('SessionManager', () => {
   describe('getCgid', () => {
     it('サーバーからcgidを取得できる（統合テスト）', async () => {
       // 実際のサーバーにリクエストを送る統合テスト
       // CI環境では skip することを推奨
 
-      const result = await getCgid();
+      const result = await sessionManager.getCgid();
 
-      // cgidは32文字のhex文字列、またはnull
-      if (result !== null) {
-        expect(result).toMatch(/^[a-f0-9]{32}$/);
-      }
+      // cgidは32文字のhex文字列
+      expect(result).toMatch(/^[a-f0-9]{32}$/);
     });
   });
 
-  describe('getYtkn', () => {
-    it('サーバーからytknを取得できる（統合テスト）', async () => {
-      // 実際のサーバーにリクエストを送る統合テスト
-      // CI環境では skip することを推奨
+  describe('後方互換性', () => {
+    it('getCgid関数がsessionManager経由で動作する', async () => {
+      // 後方互換性のためのgetCgid関数のテスト
+      const result = await getCgid();
 
-      const dno = 4; // テスト用デッキ番号
-      const result = await getYtkn(dno);
-
-      // ytknは64文字のhex文字列、またはnull
+      // cgidは32文字のhex文字列、またはnull（エラー時）
       if (result !== null) {
-        expect(result).toMatch(/^[a-f0-9]{64}$/);
+        expect(result).toMatch(/^[a-f0-9]{32}$/);
       }
     });
   });

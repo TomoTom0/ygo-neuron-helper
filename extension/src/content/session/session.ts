@@ -1,25 +1,30 @@
-/**
- * cgidのキャッシュ（セッション全体で共通）
- */
-let cachedCgid: string | null = null;
+import {
+  createNewDeckInternal,
+  duplicateDeckInternal,
+  saveDeckInternal,
+  deleteDeckInternal
+} from '@/api/deck-operations';
+import type { DeckInfo, OperationResult } from '@/types/deck';
 
 /**
- * cgid（ユーザー識別子）を取得する
+ * セッション管理クラス
  *
- * cgidはページ内のリンク（href属性）に含まれている。
- * 現在のページのDOMから直接抽出する。
- *
- * @returns cgid（32文字hex）、存在しない場合はnull
+ * cgidとytknを内部管理し、デッキ操作の統一インターフェースを提供する
  */
-export async function getCgid(): Promise<string | null> {
-  // キャッシュがあれば返す
-  if (cachedCgid) {
-    console.log('[getCgid] Using cached cgid:', cachedCgid.substring(0, 16) + '...');
-    return cachedCgid;
-  }
+class SessionManager {
+  private cgid: string | null = null;
+  private ytknCache: Map<number, string> = new Map();
 
-  try {
-    console.log('[getCgid] Searching for cgid in page...');
+  /**
+   * cgidを取得（キャッシュあり）
+   */
+  private async ensureCgid(): Promise<string> {
+    if (this.cgid) {
+      console.log('[SessionManager] Using cached cgid:', this.cgid.substring(0, 16) + '...');
+      return this.cgid;
+    }
+
+    console.log('[SessionManager] Fetching cgid from page...');
 
     // フッターの「マイデッキ」リンクからcgidを取得
     const mydeckLink = document.querySelector<HTMLAnchorElement>('a[href*="member_deck.action"][href*="cgid="]');
@@ -27,9 +32,9 @@ export async function getCgid(): Promise<string | null> {
     if (mydeckLink) {
       const match = mydeckLink.href.match(/cgid=([a-f0-9]{32})/);
       if (match && match[1]) {
-        cachedCgid = match[1];
-        console.log('[getCgid] ✅ cgid found from footer link:', cachedCgid.substring(0, 16) + '...');
-        return cachedCgid;
+        this.cgid = match[1];
+        console.log('[SessionManager] ✅ cgid found from footer link');
+        return this.cgid;
       }
     }
 
@@ -38,84 +43,132 @@ export async function getCgid(): Promise<string | null> {
     if (anyLink) {
       const match = anyLink.href.match(/cgid=([a-f0-9]{32})/);
       if (match && match[1]) {
-        cachedCgid = match[1];
-        console.log('[getCgid] ✅ cgid found from page link:', cachedCgid.substring(0, 16) + '...');
-        return cachedCgid;
+        this.cgid = match[1];
+        console.log('[SessionManager] ✅ cgid found from page link');
+        return this.cgid;
       }
     }
 
-    console.log('[getCgid] ❌ cgid not found in page');
-    return null;
-  } catch (error) {
-    console.error('[getCgid] Exception:', error);
-    return null;
+    throw new Error('cgid not found in page');
   }
-}
 
-/**
- * サーバーからytkn（CSRFトークン）を取得する
- *
- * デッキ編集ページをfetchしてHTMLから抽出する。
- * ページ遷移ごとに変わる64文字のhexトークン。
- *
- * **重要**: デッキ編集ページへのアクセスにはcgidパラメータが必須。
- *
- * @param dno デッキ番号
- * @returns ytkn（64文字hex）、存在しない場合はnull
- */
-export async function getYtkn(dno: number): Promise<string | null> {
-  try {
-    console.log('[getYtkn] Starting ytkn fetch for dno:', dno);
-
-    // まずcgidを取得（デッキ編集ページへのアクセスに必須）
-    const cgid = await getCgid();
-    if (!cgid) {
-      console.error('[getYtkn] Failed to get cgid, cannot access deck edit page');
-      return null;
+  /**
+   * ytknを取得（キャッシュあり）
+   */
+  private async ensureYtkn(dno: number): Promise<string> {
+    // キャッシュチェック
+    const cached = this.ytknCache.get(dno);
+    if (cached) {
+      console.log('[SessionManager] Using cached ytkn for dno:', dno);
+      return cached;
     }
 
-    console.log('[getYtkn] Got cgid:', cgid.substring(0, 16) + '...');
+    console.log('[SessionManager] Fetching ytkn for dno:', dno);
 
-    // デッキ編集ページをfetch（cgidパラメータ付き）
+    const cgid = await this.ensureCgid();
+
+    // デッキ編集ページをfetch
     const url = `https://www.db.yugioh-card.com/yugiohdb/member_deck.action?ope=2&dno=${dno}&cgid=${cgid}&request_locale=ja`;
-    console.log('[getYtkn] Fetching URL:', url);
-
     const response = await fetch(url, {
       method: 'GET',
       credentials: 'include'
     });
 
-    console.log('[getYtkn] Fetch complete, status:', response.ok, response.status);
-
     if (!response.ok) {
-      console.error('Failed to fetch deck edit page:', response.status);
-      return null;
+      throw new Error(`Failed to fetch deck edit page: ${response.status}`);
     }
 
     const html = await response.text();
-    console.log('[getYtkn] HTML length:', html.length, 'first 100 chars:', html.substring(0, 100));
-
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
     const input = doc.querySelector('input[name="ytkn"]') as HTMLInputElement;
-    console.log('[getYtkn] ytkn input found:', !!input, 'value:', input?.value?.substring(0, 16) + '...');
-
-    if (!input) {
-      console.log('[getYtkn] ❌ ytkn input not found');
-      return null;
+    if (!input || !input.value) {
+      throw new Error('ytkn not found in page');
     }
 
-    const value = input.value.trim();
-    if (value !== '') {
-      console.log('[getYtkn] ✅ ytkn found:', value.substring(0, 16) + '...');
-      return value;
-    } else {
-      console.log('[getYtkn] ❌ ytkn input is empty');
-      return null;
+    const ytkn = input.value.trim();
+    this.ytknCache.set(dno, ytkn);
+    console.log('[SessionManager] ✅ ytkn found for dno:', dno);
+
+    return ytkn;
+  }
+
+  /**
+   * cgidを取得（テスト用の公開メソッド）
+   */
+  async getCgid(): Promise<string> {
+    return this.ensureCgid();
+  }
+
+  /**
+   * 新規デッキを作成
+   *
+   * @returns 新しいデッキ番号、失敗時は0
+   */
+  async createDeck(): Promise<number> {
+    const cgid = await this.ensureCgid();
+    return createNewDeckInternal(cgid);
+  }
+
+  /**
+   * デッキを複製
+   *
+   * @param dno 複製元のデッキ番号
+   * @returns 新しいデッキ番号、失敗時は0
+   */
+  async duplicateDeck(dno: number): Promise<number> {
+    const cgid = await this.ensureCgid();
+    return duplicateDeckInternal(cgid, dno);
+  }
+
+  /**
+   * デッキを保存
+   *
+   * @param dno デッキ番号
+   * @param deckData デッキ情報
+   * @returns 操作結果
+   */
+  async saveDeck(dno: number, deckData: DeckInfo): Promise<OperationResult> {
+    const cgid = await this.ensureCgid();
+    const ytkn = await this.ensureYtkn(dno);
+    return saveDeckInternal(cgid, dno, deckData, ytkn);
+  }
+
+  /**
+   * デッキを削除
+   *
+   * @param dno デッキ番号
+   * @returns 操作結果
+   */
+  async deleteDeck(dno: number): Promise<OperationResult> {
+    const cgid = await this.ensureCgid();
+    const ytkn = await this.ensureYtkn(dno);
+    const result = await deleteDeckInternal(cgid, dno, ytkn);
+
+    // 削除成功時はキャッシュをクリア
+    if (result.success) {
+      this.ytknCache.delete(dno);
     }
+
+    return result;
+  }
+}
+
+/**
+ * グローバルSessionManagerインスタンス
+ */
+export const sessionManager = new SessionManager();
+
+/**
+ * 後方互換性のため、getCgidをエクスポート
+ * @deprecated sessionManager.getCgid()を使用してください
+ */
+export async function getCgid(): Promise<string | null> {
+  try {
+    return await sessionManager.getCgid();
   } catch (error) {
-    console.error('[getYtkn] Exception:', error);
+    console.error('[getCgid]', error);
     return null;
   }
 }

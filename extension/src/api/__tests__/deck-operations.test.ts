@@ -1,4 +1,4 @@
-import { createNewDeck, saveDeck, duplicateDeck, deleteDeck } from '../deck-operations';
+import { createNewDeckInternal, saveDeckInternal, duplicateDeckInternal, deleteDeckInternal } from '../deck-operations';
 import { DeckInfo } from '@/types/deck';
 
 /**
@@ -18,7 +18,7 @@ describe('デッキ操作API', () => {
     jest.restoreAllMocks();
   });
 
-  describe('createNewDeck', () => {
+  describe('createNewDeckInternal', () => {
     it('新規デッキを作成し、デッキ番号を返す', async () => {
       // Arrange
       const mockResponse = `
@@ -34,7 +34,7 @@ describe('デッキ操作API', () => {
       });
 
       // Act
-      const result = await createNewDeck(testCgid);
+      const result = await createNewDeckInternal(testCgid);
 
       // Assert
       expect(global.fetch).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe('デッキ操作API', () => {
         text: async () => mockResponse
       });
 
-      const result = await createNewDeck(testCgid);
+      const result = await createNewDeckInternal(testCgid);
 
       expect(result).toBe(0);
     });
@@ -62,13 +62,13 @@ describe('デッキ操作API', () => {
         status: 500
       });
 
-      const result = await createNewDeck(testCgid);
+      const result = await createNewDeckInternal(testCgid);
 
       expect(result).toBe(0);
     });
   });
 
-  describe('duplicateDeck', () => {
+  describe('duplicateDeckInternal', () => {
     it('デッキを複製し、新しいデッキ番号を返す', async () => {
       const mockResponse = `
         <html>
@@ -82,7 +82,7 @@ describe('デッキ操作API', () => {
         text: async () => mockResponse
       });
 
-      const result = await duplicateDeck(testCgid, 5);
+      const result = await duplicateDeckInternal(testCgid, 5);
 
       expect(global.fetch).toHaveBeenCalledWith(
         `${BASE_URL}?ope=8&cgid=${testCgid}&dno=5`,
@@ -92,7 +92,7 @@ describe('デッキ操作API', () => {
     });
   });
 
-  describe('saveDeck', () => {
+  describe('saveDeckInternal', () => {
     it('デッキを保存し、成功結果を返す', async () => {
       const deckData: DeckInfo = {
         dno: 4,
@@ -133,7 +133,7 @@ describe('デッキ操作API', () => {
         text: async () => mockResponse
       });
 
-      const result = await saveDeck(testCgid, 4, deckData, testYtkn);
+      const result = await saveDeckInternal(testCgid, 4, deckData, testYtkn);
 
       expect(global.fetch).toHaveBeenCalledWith(
         BASE_URL,
@@ -167,14 +167,14 @@ describe('デッキ操作API', () => {
         text: async () => mockResponse
       });
 
-      const result = await saveDeck(testCgid, 4, deckData, testYtkn);
+      const result = await saveDeckInternal(testCgid, 4, deckData, testYtkn);
 
       expect(result.success).toBe(false);
       expect(result.error).toEqual(['エラー1', 'エラー2']);
     });
   });
 
-  describe('deleteDeck', () => {
+  describe('deleteDeckInternal', () => {
     it('デッキを削除し、成功結果を返す', async () => {
       const mockResponse = `
         <html>
@@ -188,7 +188,7 @@ describe('デッキ操作API', () => {
         text: async () => mockResponse
       });
 
-      const result = await deleteDeck(testCgid, 4, testYtkn);
+      const result = await deleteDeckInternal(testCgid, 4, testYtkn);
 
       expect(global.fetch).toHaveBeenCalledWith(
         BASE_URL,
@@ -206,7 +206,7 @@ describe('デッキ操作API', () => {
         status: 500
       });
 
-      const result = await deleteDeck(testCgid, 4, testYtkn);
+      const result = await deleteDeckInternal(testCgid, 4, testYtkn);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('HTTP error: 500');

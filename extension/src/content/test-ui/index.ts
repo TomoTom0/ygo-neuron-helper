@@ -6,9 +6,8 @@
  */
 
 // Import実装済み関数
-import { getCgid, getYtkn } from '../session/session';
+import { sessionManager } from '../session/session';
 import { searchCardsByName } from '@/api/card-search';
-import { createNewDeck, duplicateDeck, deleteDeck, saveDeck } from '@/api/deck-operations';
 import { detectCardType } from '../card/detector';
 import { downloadDeckRecipeImage } from '../deck-recipe';
 import type { CardType } from '@/types/card';
@@ -113,7 +112,6 @@ function getTestUITemplate(): string {
         <h2>セッション情報</h2>
         <div class="test-controls">
           <button id="btn-get-cgid">cgid取得</button>
-          <button id="btn-get-ytkn">ytkn取得</button>
         </div>
         <div class="test-result" id="result-session"></div>
       </div>
@@ -310,7 +308,6 @@ function getTestUITemplate(): string {
 function attachEventHandlers(): void {
   // セッション情報
   document.getElementById('btn-get-cgid')?.addEventListener('click', handleGetCgid);
-  document.getElementById('btn-get-ytkn')?.addEventListener('click', handleGetYtkn);
 
   // カード検索
   document.getElementById('btn-search-cards')?.addEventListener('click', handleSearchCards);
@@ -348,27 +345,8 @@ function displayResult(elementId: string, result: unknown, isError = false): voi
 async function handleGetCgid(): Promise<void> {
   try {
     displayResult('result-session', { message: 'cgid取得中...' });
-    const cgid = await getCgid();
-    if (cgid) {
-      displayResult('result-session', { cgid, length: cgid.length });
-    } else {
-      displayResult('result-session', { error: 'cgid not found' }, true);
-    }
-  } catch (error) {
-    displayResult('result-session', { error: String(error) }, true);
-  }
-}
-
-async function handleGetYtkn(): Promise<void> {
-  try {
-    displayResult('result-session', { message: 'ytkn取得中...' });
-    // デフォルトでdno=4のytknを取得
-    const ytkn = await getYtkn(4);
-    if (ytkn) {
-      displayResult('result-session', { ytkn, length: ytkn.length, dno: 4 });
-    } else {
-      displayResult('result-session', { error: 'ytkn not found' }, true);
-    }
+    const cgid = await sessionManager.getCgid();
+    displayResult('result-session', { cgid, length: cgid.length });
   } catch (error) {
     displayResult('result-session', { error: String(error) }, true);
   }
@@ -399,17 +377,8 @@ async function handleSearchCards(): Promise<void> {
 
 async function handleCreateDeck(): Promise<void> {
   try {
-    displayResult('result-deck-ops', { message: 'cgid取得中...' });
-    const cgid = await getCgid();
-    if (!cgid) {
-      displayResult('result-deck-ops', { error: 'cgid not found' }, true);
-      return;
-    }
-
     displayResult('result-deck-ops', { message: 'デッキ作成中...' });
-
-    const newDno = await createNewDeck(cgid);
-
+    const newDno = await sessionManager.createDeck();
     displayResult('result-deck-ops', {
       message: 'デッキ作成完了',
       newDno
@@ -421,17 +390,8 @@ async function handleCreateDeck(): Promise<void> {
 
 async function handleDuplicateDeck(): Promise<void> {
   try {
-    displayResult('result-deck-ops', { message: 'cgid取得中...' });
-    const cgid = await getCgid();
-    if (!cgid) {
-      displayResult('result-deck-ops', { error: 'cgid not found' }, true);
-      return;
-    }
-
     displayResult('result-deck-ops', { message: 'デッキ複製中...' });
-
-    const newDno = await duplicateDeck(cgid, 4);
-
+    const newDno = await sessionManager.duplicateDeck(4);
     displayResult('result-deck-ops', {
       message: 'デッキ複製完了',
       sourceDno: 4,
@@ -444,24 +404,8 @@ async function handleDuplicateDeck(): Promise<void> {
 
 async function handleDeleteDeck(): Promise<void> {
   try {
-    displayResult('result-deck-ops', { message: 'cgid取得中...' });
-    const cgid = await getCgid();
-    if (!cgid) {
-      displayResult('result-deck-ops', { error: 'cgid not found' }, true);
-      return;
-    }
-
-    displayResult('result-deck-ops', { message: 'ytkn取得中...' });
-    const ytkn = await getYtkn(4);
-    if (!ytkn) {
-      displayResult('result-deck-ops', { error: 'ytkn not found' }, true);
-      return;
-    }
-
     displayResult('result-deck-ops', { message: 'デッキ削除中...' });
-
-    const result = await deleteDeck(cgid, 4, ytkn);
-
+    const result = await sessionManager.deleteDeck(4);
     displayResult('result-deck-ops', {
       message: 'デッキ削除完了',
       dno: 4,
@@ -479,20 +423,6 @@ async function handleSaveDeck(): Promise<void> {
 
     const dno = parseInt(dnoInput.value, 10);
     const name = nameInput.value;
-
-    displayResult('result-save', { message: 'cgid取得中...' });
-    const cgid = await getCgid();
-    if (!cgid) {
-      displayResult('result-save', { error: 'cgid not found' }, true);
-      return;
-    }
-
-    displayResult('result-save', { message: 'ytkn取得中...' });
-    const ytkn = await getYtkn(dno);
-    if (!ytkn) {
-      displayResult('result-save', { error: 'ytkn not found' }, true);
-      return;
-    }
 
     // テスト用のデッキデータ
     const deckData = {
@@ -520,9 +450,7 @@ async function handleSaveDeck(): Promise<void> {
     };
 
     displayResult('result-save', { message: 'デッキ保存中...' });
-
-    const result = await saveDeck(cgid, dno, deckData, ytkn);
-
+    const result = await sessionManager.saveDeck(dno, deckData);
     displayResult('result-save', {
       message: 'デッキ保存完了',
       dno,

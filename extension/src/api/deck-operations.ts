@@ -4,12 +4,13 @@ import { DeckCard } from '@/types/card';
 const BASE_URL = 'https://www.db.yugioh-card.com/yugiohdb/member_deck.action';
 
 /**
- * 新規デッキを作成する
+ * 新規デッキを作成する（内部関数）
  *
  * @param cgid ユーザー識別子
  * @returns 新しいデッキ番号、失敗時は0
+ * @internal SessionManager経由で呼び出すこと
  */
-export async function createNewDeck(cgid: string): Promise<number> {
+export async function createNewDeckInternal(cgid: string): Promise<number> {
   try {
     const response = await fetch(`${BASE_URL}?ope=6&cgid=${cgid}`, {
       method: 'GET',
@@ -35,13 +36,14 @@ export async function createNewDeck(cgid: string): Promise<number> {
 }
 
 /**
- * デッキを複製する
+ * デッキを複製する（内部関数）
  *
  * @param cgid ユーザー識別子
  * @param dno 複製元のデッキ番号
  * @returns 新しいデッキ番号、失敗時は0
+ * @internal SessionManager経由で呼び出すこと
  */
-export async function duplicateDeck(cgid: string, dno: number): Promise<number> {
+export async function duplicateDeckInternal(cgid: string, dno: number): Promise<number> {
   try {
     const response = await fetch(`${BASE_URL}?ope=8&cgid=${cgid}&dno=${dno}`, {
       method: 'GET',
@@ -67,15 +69,16 @@ export async function duplicateDeck(cgid: string, dno: number): Promise<number> 
 }
 
 /**
- * デッキを保存する
+ * デッキを保存する（内部関数）
  *
  * @param cgid ユーザー識別子
  * @param dno デッキ番号
  * @param deckData デッキ情報
  * @param ytkn CSRFトークン
  * @returns 操作結果
+ * @internal SessionManager経由で呼び出すこと
  */
-export async function saveDeck(
+export async function saveDeckInternal(
   cgid: string,
   dno: number,
   deckData: DeckInfo,
@@ -155,14 +158,15 @@ export async function saveDeck(
 }
 
 /**
- * デッキを削除する
+ * デッキを削除する（内部関数）
  *
  * @param cgid ユーザー識別子
  * @param dno デッキ番号
  * @param ytkn CSRFトークン
  * @returns 操作結果
+ * @internal SessionManager経由で呼び出すこと
  */
-export async function deleteDeck(
+export async function deleteDeckInternal(
   cgid: string,
   dno: number,
   ytkn: string
