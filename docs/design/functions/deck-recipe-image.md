@@ -310,29 +310,209 @@ const deck_name = dnm === null ?
 5. **タイムゾーン**: タイムスタンプはローカル時刻を使用
 6. **ファイル名**: 日付をISO8601形式（ハイフン区切り）で含める
 
+## 関数設計
+
+### 責務の分離
+
+デッキレシピ画像機能は以下の2つの関数に分離する：
+
+#### 1. `createDeckRecipeImage()` - 画像作成関数
+
+**役割**: パラメータに基づいてデッキレシピ画像を生成する純粋な作成関数
+
+**シグネチャ**:
+```typescript
+async function createDeckRecipeImage(
+  options: CreateDeckRecipeImageOptions
+): Promise<Blob>
+
+interface CreateDeckRecipeImageOptions {
+  /** デッキ番号 */
+  dno: string;
+
+  /** QRコードを含めるか */
+  includeQR: boolean;
+
+  /** スケール倍率（デフォルト: 2、Retina対応） */
+  scale?: number;
+
+  /** カラーバリエーション */
+  color: 'red' | 'blue';
+
+  /** ファイル名（オプション、ダウンロード時に使用） */
+  fileName?: string;
+
+  /** デッキデータ（既に取得済みの場合、パフォーマンス最適化） */
+  deckData?: DeckData;
+}
+```
+
+**処理フロー**:
+1. デッキデータの取得（`deckData`が未指定の場合、APIから取得）
+2. Canvasの初期化（`scale`倍率適用）
+3. 背景グラデーション描画（`color`に応じて）
+4. デッキ名描画
+5. カードセクション（Main/Extra/Side）描画
+6. QRコード描画（`includeQR=true`の場合）
+7. タイムスタンプ描画
+8. `canvas.toBlob()`でJPEG Blob化（品質80%）して返す
+
+**利点**:
+- 純粋関数に近い形でテスト可能
+- Blobを返すため、ダウンロード以外の用途（プレビュー、アップロード）にも使用可能
+- 依存性が明確
+
+#### 2. `downloadDeckRecipeImage()` - ダウンロード関数
+
+**役割**: 画像作成関数を内部で呼び出し、ブラウザダウンロードまで実行する高レベル関数
+
+**シグネチャ**:
+```typescript
+async function downloadDeckRecipeImage(
+  options: DownloadDeckRecipeImageOptions
+): Promise<void>
+
+interface DownloadDeckRecipeImageOptions
+  extends CreateDeckRecipeImageOptions {
+  // createDeckRecipeImageと同じオプション
+}
+```
+
+**処理フロー**:
+1. `createDeckRecipeImage(options)`を呼び出し
+2. 返されたBlobを受け取る
+3. `URL.createObjectURL(blob)`でダウンロードURL作成
+4. `<a>`要素を動的生成
+   - `href`: 作成したURL
+   - `download`: ファイル名（`{deck_name}_{ISO8601_timestamp}.jpg`）
+5. `a.click()`でダウンロード実行
+6. クリーンアップ（`URL.revokeObjectURL(url)`, `a.remove()`）
+
+**利点**:
+- ユーザーが直接呼び出すシンプルなAPI
+- 内部で作成関数を使用するため、ロジックの重複なし
+
+### 使用例
+
+#### 例1: 直接ダウンロード
+```typescript
+// ユーザーがボタンをクリックした際の処理
+await downloadDeckRecipeImage({
+  dno: '1',
+  color: 'red',
+  includeQR: true
+});
+```
+
+#### 例2: プレビュー表示
+```typescript
+// プレビューモーダルに表示
+const blob = await createDeckRecipeImage({
+  dno: '1',
+  color: 'blue',
+  includeQR: false,
+  scale: 1 // プレビューは1倍でOK
+});
+
+const imgElement = document.createElement('img');
+imgElement.src = URL.createObjectURL(blob);
+previewContainer.appendChild(imgElement);
+```
+
+#### 例3: サーバーにアップロード
+```typescript
+// デッキレシピをサーバーに保存
+const blob = await createDeckRecipeImage({
+  dno: '1',
+  color: 'red',
+  includeQR: true
+});
+
+const formData = new FormData();
+formData.append('image', blob, 'deck-recipe.jpg');
+await fetch('/api/deck-recipes', {
+  method: 'POST',
+  body: formData
+});
+```
+
+#### 例4: 複数カラーを一括生成
+```typescript
+// 赤と青の両方を生成
+const [redBlob, blueBlob] = await Promise.all([
+  createDeckRecipeImage({ dno: '1', color: 'red', includeQR: true }),
+  createDeckRecipeImage({ dno: '1', color: 'blue', includeQR: true })
+]);
+
+// それぞれダウンロード
+downloadBlob(redBlob, 'deck-red.jpg');
+downloadBlob(blueBlob, 'deck-blue.jpg');
+```
+
 ## 今後の実装計画
 
-### Phase 1: 基本機能の移植
+### Phase 1: 基本機能の実装
 
-- [ ] Canvas描画ロジックの実装
-- [ ] カード画像取得の実装
-- [ ] デッキ名取得の実装
-- [ ] ダウンロード機能の実装
+- [ ] TypeScript型定義の作成
+  - [ ] `CreateDeckRecipeImageOptions`
+  - [ ] `DeckData`インターフェース
+  - [ ] `ColorVariant`型
+- [ ] `createDeckRecipeImage()`の実装
+  - [ ] Canvas初期化ロジック
+  - [ ] 背景グラデーション描画
+  - [ ] デッキ名描画
+  - [ ] カードセクション描画
+  - [ ] タイムスタンプ描画
+  - [ ] Blob変換
+- [ ] ユニットテストの作成
 
-### Phase 2: QRコード対応
+### Phase 2: ダウンロード機能の実装
+
+- [ ] `downloadDeckRecipeImage()`の実装
+  - [ ] ファイル名生成ロジック
+  - [ ] ダウンロードトリガー
+  - [ ] クリーンアップ処理
+- [ ] エラーハンドリング
+  - [ ] デッキデータ取得失敗
+  - [ ] Canvas描画エラー
+  - [ ] ブラウザ互換性チェック
+
+### Phase 3: QRコード対応
 
 - [ ] qrcode.jsライブラリの統合
+  - [ ] npm packageの追加
+  - [ ] TypeScript型定義
 - [ ] 公開フラグ判定の実装
+  - [ ] DOMから判定ロジック
+  - [ ] APIレスポンスから判定
 - [ ] QRコード生成と描画
+  - [ ] 128x128pxサイズ
+  - [ ] 補正レベルM
+  - [ ] Canvas描画統合
 
-### Phase 3: UI統合
+### Phase 4: UI統合
 
 - [ ] ボタンUIの追加
-- [ ] カラー選択機能
+  - [ ] 左クリック: 赤バリエーション
+  - [ ] 右クリック: 青バリエーション
+- [ ] カラー選択UI
+  - [ ] プレビュー機能
+  - [ ] カスタムカラー対応（将来）
 - [ ] プログレス表示
+  - [ ] 画像生成中インジケーター
+  - [ ] キャンセル機能
 
-### Phase 4: 最適化
+### Phase 5: 最適化とテスト
 
-- [ ] 画像ロード最適化
-- [ ] エラーハンドリング
-- [ ] TypeScript型定義
+- [ ] パフォーマンス最適化
+  - [ ] 画像ロードの並列化
+  - [ ] Canvas描画の最適化
+  - [ ] メモリ管理（Blob/URLの適切な破棄）
+- [ ] E2Eテスト
+  - [ ] 実際のデッキデータでのテスト
+  - [ ] 各カラーバリエーションのテスト
+  - [ ] QRコード有無のテスト
+- [ ] ドキュメント整備
+  - [ ] API仕様書
+  - [ ] 使用例集
+  - [ ] トラブルシューティングガイド
