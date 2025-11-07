@@ -11,8 +11,6 @@ import {
   QR_CODE_SETTINGS,
   CardSection
 } from '../../types/deck-recipe-image';
-import { parseDeckDetail } from '../parser/deck-detail-parser';
-import { buildCardImageUrl } from '../../api/card-search';
 import QRCode from 'qrcode';
 
 /**
@@ -33,7 +31,7 @@ import QRCode from 'qrcode';
  */
 export async function createDeckRecipeImage(
   options: CreateDeckRecipeImageOptions
-): Promise<Blob> {
+): Promise<Blob | Buffer> {
   const {
     dno,
     includeQR,
@@ -42,29 +40,49 @@ export async function createDeckRecipeImage(
     deckData
   } = options;
 
-  // 1. デッキデータの取得
-  const data = deckData || await fetchDeckData(dno);
+  // 1. デッキデータの検証
+  if (!deckData) {
+    throw new Error('deckData is required');
+  }
+  const data = deckData;
 
   // 2. Canvas描画設定の初期化
   const drawSettings = initializeCanvasSettings(data, scale, color, includeQR);
 
   // 3. Canvasの作成と初期化
-  const canvas = document.createElement('canvas');
-  canvas.width = drawSettings.width;
-  canvas.height = drawSettings.height;
-  const ctx = canvas.getContext('2d');
+  let canvas: any;
+  let ctx: any;
+
+  if (typeof document !== 'undefined') {
+    // ブラウザ環境
+    canvas = document.createElement('canvas');
+    canvas.width = drawSettings.width;
+    canvas.height = drawSettings.height;
+    ctx = canvas.getContext('2d');
+  } else {
+    // Node.js環境
+    const { createCanvas } = await import('canvas');
+    canvas = createCanvas(drawSettings.width, drawSettings.height);
+    ctx = canvas.getContext('2d');
+  }
 
   if (!ctx) {
     throw new Error('Canvas 2D context not supported');
   }
 
-  // 4. 背景グラデーション描画
+  // 4. Canvas設定
+  ctx.lineWidth = 3 * scale;
+
+  // 5. 背景グラデーション描画
   drawBackgroundGradient(ctx, drawSettings);
 
-  // 5. デッキ名描画
+  // 6. ヘッダー左側アクセントライン描画
+  drawHeaderAccentLine(ctx, drawSettings);
+
+  // 7. デッキ名描画
   drawDeckName(ctx, data.deckName, drawSettings);
 
-  // 6. カードセクション描画
+  // 8. カードセクション描画（旧実装: height_now = 49 * ratio）
   let currentY = LAYOUT_CONSTANTS.headerHeight * scale;
   for (const section of data.sections) {
     currentY = await drawCardSection(ctx, section, currentY, drawSettings);
@@ -78,88 +96,28 @@ export async function createDeckRecipeImage(
   // 8. タイムスタンプ描画
   drawTimestamp(ctx, drawSettings);
 
-  // 9. BlobへのJPEG変換
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error('Failed to convert canvas to blob'));
-        }
-      },
-      'image/jpeg',
-      0.8 // JPEG品質80%
-    );
-  });
+  // 9. 画像変換（Blob/Buffer）
+  if (typeof document !== 'undefined') {
+    // ブラウザ環境: Blobで返す
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob: Blob | null) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to convert canvas to blob'));
+          }
+        },
+        'image/png',
+        1.0
+      );
+    });
+  } else {
+    // Node.js環境: Bufferで返す
+    const buffer = canvas.toBuffer('image/png');
+    return Promise.resolve(buffer);
+  }
 }
-
-/**
- * デッキデータを取得する
- *
- * @param dno - デッキ番号
- * @returns デッキレシピ画像作成用のデータ
- */
-async function fetchDeckData(dno: string): Promise<DeckRecipeImageData> {
-  // 現在のページ（表示ページ）からデッキ情報をパース
-  const deckInfo = parseDeckDetail(document);
-
-  // DeckInfo → DeckRecipeImageData に変換
-  const sections: CardSection[] = [];
-
-  // メインデッキ
-  if (deckInfo.mainDeck.length > 0) {
-    const mainImages = deckInfo.mainDeck
-      .flatMap(dc => Array(dc.quantity).fill(buildCardImageUrl(dc.card) || ''))
-      .filter(url => url !== '');
-
-    if (mainImages.length > 0) {
-      sections.push({
-        name: 'main',
-        displayName: 'メイン',
-        cardImages: mainImages
-      });
-    }
-  }
-
-  // エクストラデッキ
-  if (deckInfo.extraDeck.length > 0) {
-    const extraImages = deckInfo.extraDeck
-      .flatMap(dc => Array(dc.quantity).fill(buildCardImageUrl(dc.card) || ''))
-      .filter(url => url !== '');
-
-    if (extraImages.length > 0) {
-      sections.push({
-        name: 'extra',
-        displayName: 'エクストラ',
-        cardImages: extraImages
-      });
-    }
-  }
-
-  // サイドデッキ
-  if (deckInfo.sideDeck.length > 0) {
-    const sideImages = deckInfo.sideDeck
-      .flatMap(dc => Array(dc.quantity).fill(buildCardImageUrl(dc.card) || ''))
-      .filter(url => url !== '');
-
-    if (sideImages.length > 0) {
-      sections.push({
-        name: 'side',
-        displayName: 'サイド',
-        cardImages: sideImages
-      });
-    }
-  }
-
-  return {
-    deckName: deckInfo.name,
-    sections,
-    isPublic: deckInfo.isPublic ?? false,
-    dno
-  };
-}
-
 
 /**
  * Canvas描画設定を初期化する
@@ -178,15 +136,15 @@ function initializeCanvasSettings(
 ): CanvasDrawSettings {
   const width = DECK_RECIPE_WIDTH * scale;
 
-  // 高さの計算
+  // 高さの計算（旧実装: (img_qr ? 80 : 0) + 65 + 49 + セクション合計）
   let height = (includeQR && data.isPublic ? LAYOUT_CONSTANTS.qrAreaHeight : 0) * scale;
+  height += 65 * scale; // 固定余白
   height += LAYOUT_CONSTANTS.headerHeight * scale;
 
   // 各セクションの高さを計算
   for (const section of data.sections) {
-    height += LAYOUT_CONSTANTS.sectionHeaderHeight * scale;
     const rows = Math.ceil(section.cardImages.length / CARD_IMAGE_SETTINGS.cardsPerRow);
-    height += (LAYOUT_CONSTANTS.sectionTopHeight + rows * LAYOUT_CONSTANTS.sectionRowHeight) * scale;
+    height += (LAYOUT_CONSTANTS.sectionHeaderHeight + rows * LAYOUT_CONSTANTS.sectionRowHeight) * scale;
   }
 
   return {
@@ -225,6 +183,30 @@ function drawBackgroundGradient(
 }
 
 /**
+ * ヘッダー左側アクセントラインを描画する
+ *
+ * @param ctx - Canvas 2Dコンテキスト
+ * @param settings - 描画設定
+ */
+function drawHeaderAccentLine(
+  ctx: CanvasRenderingContext2D,
+  settings: CanvasDrawSettings
+): void {
+  const scale = settings.scale;
+
+  // アクセントライン描画（旧実装: line 2000-2005）
+  ctx.strokeStyle = settings.colorSettings.accentLine;
+  ctx.beginPath();
+  ctx.moveTo(1 * scale, 1 * scale);
+  ctx.lineTo(1 * scale, LAYOUT_CONSTANTS.headerHeight * scale + 1 * scale);
+  ctx.closePath();
+  ctx.stroke();
+
+  // ボーダーラインに切り替え
+  ctx.strokeStyle = settings.colorSettings.borderLine;
+}
+
+/**
  * デッキ名を描画する
  *
  * @param ctx - Canvas 2Dコンテキスト
@@ -238,17 +220,14 @@ function drawDeckName(
 ): void {
   const scale = settings.scale;
 
-  // フォント設定
+  // フォント設定（旧実装: line 2008-2010）
   ctx.font = `bold ${FONT_SETTINGS.deckNameSize * scale}px ${FONT_SETTINGS.family}`;
-  ctx.fillStyle = '#ffffff';  // 白色
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.fillStyle = settings.colorSettings.font;
+  ctx.textAlign = 'left'; // 旧実装では中央揃えではなく左揃え
+  ctx.textBaseline = 'alphabetic';
 
-  // デッキ名を中央に描画
-  const centerX = settings.width / 2;
-  const centerY = (LAYOUT_CONSTANTS.headerHeight / 2) * scale;
-
-  ctx.fillText(deckName, centerX, centerY);
+  // デッキ名を左側に描画（旧実装: 7 * ratio, 35 * ratio）
+  ctx.fillText(deckName, 7 * scale, 35 * scale);
 }
 
 /**
@@ -269,15 +248,15 @@ async function drawCardSection(
   const scale = settings.scale;
   let currentY = startY;
 
-  // 1. セクションヘッダー背景グラデーション
+  // 1. セクションヘッダー背景グラデーション（旧実装: line 2016-2022）
   const headerGradient = ctx.createLinearGradient(
-    settings.width - 3 * scale,  // 右端
+    747 * scale,  // 右端（旧実装: 747固定値）
     currentY + 17 * scale,
-    3 * scale,                   // 左端
+    3 * scale,    // 左端
     currentY + 17 * scale
   );
-  headerGradient.addColorStop(0, settings.colorSettings.headerGradientStart);
-  headerGradient.addColorStop(1, settings.colorSettings.headerGradientEnd);
+  headerGradient.addColorStop(0, settings.colorSettings.headerGradientE);
+  headerGradient.addColorStop(1, settings.colorSettings.headerGradientW);
 
   ctx.fillStyle = headerGradient;
   ctx.fillRect(
@@ -287,23 +266,47 @@ async function drawCardSection(
     28 * scale
   );
 
+  // セクションヘッダーの囲み線（旧実装: line 2024-2030）
+  ctx.beginPath();
+  ctx.moveTo(settings.width - 1 * scale, currentY + 1 * scale);
+  ctx.lineTo(1 * scale, currentY + 1 * scale);
+  ctx.lineTo(1 * scale, currentY + 33 * scale);
+  ctx.lineTo(settings.width - 1 * scale, currentY + 33 * scale);
+  ctx.closePath();
+  ctx.stroke();
+
   // 2. カードバック画像
   try {
-    const cardBackUrl = chrome.runtime.getURL('images/card_back.png');
-    const cardBackImg = await loadImage(cardBackUrl);
-    ctx.drawImage(cardBackImg, 8 * scale, currentY + 9 * scale, 14 * scale, 17 * scale);
+    let cardBackImg: any = null;
+
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      // Chrome拡張機能環境
+      const cardBackUrl = chrome.runtime.getURL('images/card_back.png');
+      cardBackImg = await loadImage(cardBackUrl);
+    } else {
+      // Node.js環境 - ローカルファイルパスを使用
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __dirname = path.dirname(fileURLToPath(import.meta.url));
+      const cardBackPath = path.resolve(__dirname, '../../images/card_back.png');
+      cardBackImg = await loadImage(cardBackPath);
+    }
+
+    if (cardBackImg) {
+      ctx.drawImage(cardBackImg, 8 * scale, currentY + 9 * scale, 14 * scale, 17 * scale);
+    }
   } catch (error) {
     console.error('Failed to load card back image:', error);
     // カードバック画像の読み込みに失敗しても処理は継続
   }
 
-  // 3. セクション名とカード数
+  // 3. セクション名とカード数（旧実装: line 2013, 2034-2037）
   ctx.font = `${FONT_SETTINGS.sectionNameSize * scale}px ${FONT_SETTINGS.family}`;
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = settings.colorSettings.font;
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = 'alphabetic';
 
-  const sectionText = `${section.displayName} Deck: ${section.cardImages.length} Cards`;
+  const sectionText = `${section.name.slice(0, 1).toUpperCase() + section.name.slice(1)} Deck: ${section.cardImages.length} Cards`;
   ctx.fillText(sectionText, 32 * scale, currentY + 25 * scale);
 
   // 4. カード画像グリッド描画
@@ -319,8 +322,7 @@ async function drawCardSection(
     const row = Math.floor(index / CARD_IMAGE_SETTINGS.cardsPerRow);
 
     const x = CARD_IMAGE_SETTINGS.spacing * scale * col;
-    const y = currentY + LAYOUT_CONSTANTS.sectionTopHeight * scale +
-              LAYOUT_CONSTANTS.sectionRowHeight * scale * row;
+    const y = currentY + LAYOUT_CONSTANTS.sectionRowHeight * scale * row;
 
     ctx.drawImage(
       img,
@@ -333,7 +335,7 @@ async function drawCardSection(
 
   // 次のセクションの開始Y座標を計算
   const rows = Math.ceil(section.cardImages.length / CARD_IMAGE_SETTINGS.cardsPerRow);
-  currentY += (LAYOUT_CONSTANTS.sectionTopHeight + rows * LAYOUT_CONSTANTS.sectionRowHeight) * scale;
+  currentY += rows * LAYOUT_CONSTANTS.sectionRowHeight * scale;
 
   return currentY;
 }
@@ -344,13 +346,46 @@ async function drawCardSection(
  * @param url - 画像URL
  * @returns ロードされた画像
  */
-function loadImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
+async function loadImage(url: string): Promise<any> {
+  if (typeof document !== 'undefined') {
+    // ブラウザ環境
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+  } else {
+    // Node.js環境
+    const { loadImage: canvasLoadImage } = await import('canvas');
+
+    // URLかローカルファイルパスかを判定
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      // HTTPSでの画像取得（Referer対応）
+      const https = await import('https');
+
+      return new Promise((resolve, reject) => {
+        https.default.get(url, {
+          headers: {
+            'Referer': 'https://www.db.yugioh-card.com/yugiohdb/',
+            'User-Agent': 'Mozilla/5.0'
+          }
+        }, (res) => {
+          const chunks: Buffer[] = [];
+          res.on('data', chunk => chunks.push(chunk));
+          res.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            canvasLoadImage(buffer)
+              .then(resolve)
+              .catch(reject);
+          });
+        }).on('error', reject);
+      });
+    } else {
+      // ローカルファイルパス
+      return canvasLoadImage(url);
+    }
+  }
 }
 
 /**
@@ -414,22 +449,24 @@ function drawTimestamp(
 ): void {
   const scale = settings.scale;
 
-  // 現在時刻をISO8601形式で取得
+  // 現在時刻を取得（ISO 8601形式: yyyy-mm-dd）
   const date = new Date();
-  const timestamp = date
-    .toISOString()
-    .replace(/[:]/g, '-')
-    .replace(/\..+/, '');
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const timestamp = `exported on ${year}-${month}-${day}`;
 
   // フォント設定（小さめ）
   ctx.font = `${14 * scale}px ${FONT_SETTINGS.family}`;
-  ctx.fillStyle = '#ffffff';  // 白色
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
+  ctx.fillStyle = settings.colorSettings.font;
 
-  // 右下に描画
-  const x = settings.width - (10 * scale);
-  const y = settings.height - (10 * scale);
+  // Canvas状態をリセット
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  // 左下に描画
+  const x = 10 * scale;
+  const y = settings.height - (12 * scale);
 
   ctx.fillText(timestamp, x, y);
 }

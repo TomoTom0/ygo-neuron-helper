@@ -11,10 +11,16 @@ export interface ColorSettings {
   gradientNE: string;
   /** グラデーション終了色（南西） */
   gradientSW: string;
-  /** セクションヘッダーグラデーション開始色 */
-  headerGradientStart: string;
-  /** セクションヘッダーグラデーション終了色 */
-  headerGradientEnd: string;
+  /** セクションヘッダーグラデーション開始色（東） */
+  headerGradientE: string;
+  /** セクションヘッダーグラデーション終了色（西） */
+  headerGradientW: string;
+  /** ボーダーライン色 */
+  borderLine: string;
+  /** ヘッダーアクセントライン色 */
+  accentLine: string;
+  /** フォント色 */
+  font: string;
 }
 
 /**
@@ -24,14 +30,20 @@ export const COLOR_SETTINGS: Record<ColorVariant, ColorSettings> = {
   red: {
     gradientNE: '#760f01',
     gradientSW: '#240202',
-    headerGradientStart: '#ff0000',
-    headerGradientEnd: '#990000'
+    headerGradientE: '#510101',
+    headerGradientW: '#0c0909',
+    borderLine: '#fcc4c4',
+    accentLine: '#ed1b1b',
+    font: '#ffffff'
   },
   blue: {
     gradientNE: '#003d76',
     gradientSW: '#011224',
-    headerGradientStart: '#0066ff',
-    headerGradientEnd: '#003399'
+    headerGradientE: '#023051',
+    headerGradientW: '#0b090c',
+    borderLine: '#c7ecfc',
+    accentLine: '#1485ed',
+    font: '#ffffff'
   }
 };
 
@@ -154,14 +166,12 @@ export const DECK_RECIPE_WIDTH = 750;
 export const LAYOUT_CONSTANTS = {
   /** QRコード領域の高さ */
   qrAreaHeight: 80,
-  /** ヘッダー高さ */
-  headerHeight: 65,
+  /** ヘッダー高さ（デッキ名エリア） */
+  headerHeight: 49,
   /** セクションヘッダー高さ */
-  sectionHeaderHeight: 49,
+  sectionHeaderHeight: 34,
   /** セクション行の高さ */
   sectionRowHeight: 107,
-  /** セクション上部の高さ */
-  sectionTopHeight: 34,
   /** 下部マージン */
   bottomMargin: 12
 } as const;
