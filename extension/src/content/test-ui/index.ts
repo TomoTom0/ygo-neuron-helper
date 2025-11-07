@@ -10,7 +10,9 @@ import { getCgid, getYtkn } from '../session/session';
 import { searchCardsByName } from '@/api/card-search';
 import { createNewDeck, duplicateDeck, deleteDeck, saveDeck } from '@/api/deck-operations';
 import { detectCardType } from '../card/detector';
+import { downloadDeckRecipeImage } from '../deck-recipe';
 import type { CardType } from '@/types/card';
+import type { ColorVariant } from '@/types/deck-recipe-image';
 
 // Content Script読み込み確認（視覚的マーカー）
 const debugDiv = document.createElement('div');
@@ -158,6 +160,22 @@ function getTestUITemplate(): string {
         </div>
         <div class="test-result" id="result-detector"></div>
       </div>
+
+      <div class="test-section">
+        <h2>デッキレシピ画像作成</h2>
+        <div class="test-controls">
+          <input type="number" id="input-recipe-dno" placeholder="デッキ番号" value="4">
+          <div class="color-selection">
+            <label>カラー:</label>
+            <label><input type="radio" name="recipe-color" value="red" checked> 赤</label>
+            <label><input type="radio" name="recipe-color" value="blue"> 青</label>
+          </div>
+          <label><input type="checkbox" id="checkbox-include-qr" checked> QRコード</label>
+          <input type="number" id="input-scale" placeholder="スケール" value="2" min="1" max="4" step="0.5">
+          <button id="btn-create-recipe-image">画像作成＆ダウンロード</button>
+        </div>
+        <div class="test-result" id="result-recipe"></div>
+      </div>
     </div>
 
     <style>
@@ -226,6 +244,34 @@ function getTestUITemplate(): string {
         min-width: 150px;
       }
 
+      .color-selection {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: #f0f0f0;
+        border-radius: 4px;
+      }
+
+      .color-selection label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+      }
+
+      input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+      }
+
+      input[type="radio"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+      }
+
       .test-result {
         margin-top: 15px;
         padding: 15px;
@@ -279,6 +325,9 @@ function attachEventHandlers(): void {
 
   // カードタイプ判定テスト
   document.getElementById('btn-test-detector')?.addEventListener('click', handleTestDetector);
+
+  // デッキレシピ画像作成
+  document.getElementById('btn-create-recipe-image')?.addEventListener('click', handleCreateRecipeImage);
 }
 
 /**
@@ -522,6 +571,55 @@ async function handleTestDetector(): Promise<void> {
     });
   } catch (error) {
     displayResult('result-detector', { error: String(error) }, true);
+  }
+}
+
+async function handleCreateRecipeImage(): Promise<void> {
+  try {
+    // 入力値を取得
+    const dnoInput = document.getElementById('input-recipe-dno') as HTMLInputElement;
+    const dno = dnoInput.value;
+
+    // カラー選択を取得
+    const colorRadio = document.querySelector('input[name="recipe-color"]:checked') as HTMLInputElement;
+    const color = (colorRadio?.value || 'red') as ColorVariant;
+
+    // QRコード有無を取得
+    const qrCheckbox = document.getElementById('checkbox-include-qr') as HTMLInputElement;
+    const includeQR = qrCheckbox?.checked ?? true;
+
+    // スケールを取得
+    const scaleInput = document.getElementById('input-scale') as HTMLInputElement;
+    const scale = parseFloat(scaleInput.value) || 2;
+
+    displayResult('result-recipe', {
+      message: 'デッキレシピ画像作成中...',
+      dno,
+      color,
+      includeQR,
+      scale
+    });
+
+    // 画像作成とダウンロード
+    await downloadDeckRecipeImage({
+      dno,
+      color,
+      includeQR,
+      scale
+    });
+
+    displayResult('result-recipe', {
+      message: 'デッキレシピ画像作成完了！ダウンロードが開始されました。',
+      dno,
+      color,
+      includeQR,
+      scale
+    });
+  } catch (error) {
+    displayResult('result-recipe', {
+      error: String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, true);
   }
 }
 
