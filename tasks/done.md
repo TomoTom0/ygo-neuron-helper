@@ -2,6 +2,60 @@
 
 完了したタスク
 
+## 2025-11-07: デッキレシピ画像作成機能 Phase 1 完了
+
+### 実装内容
+**Phase 1: 基本機能の実装（型定義、Canvas描画）**
+
+#### 作成ファイル
+1. `extension/src/types/deck-recipe-image.ts` - 型定義ファイル
+   - `ColorVariant`: 'red' | 'blue'
+   - `ColorSettings`: グラデーション色設定
+   - `CreateDeckRecipeImageOptions`: 画像作成オプション
+   - `DeckRecipeImageData`: デッキデータ
+   - `CardSection`: カードセクション情報
+   - `CanvasDrawSettings`: Canvas描画設定
+   - 各種定数（FONT_SETTINGS, CARD_IMAGE_SETTINGS, LAYOUT_CONSTANTS, QR_CODE_SETTINGS等）
+
+2. `extension/src/content/deck-recipe/createDeckRecipeImage.ts` - 画像作成関数
+   - `createDeckRecipeImage()`: メイン画像作成関数
+   - `initializeCanvasSettings()`: Canvas設定初期化
+   - `drawBackgroundGradient()`: 背景グラデーション描画
+   - `drawDeckName()`: デッキ名描画
+   - `drawCardSection()`: カードセクション描画（ヘッダー、グリッド）
+   - `drawTimestamp()`: タイムスタンプ描画
+   - `loadImage()`: 画像ロードヘルパー
+
+3. `extension/src/content/deck-recipe/downloadDeckRecipeImage.ts` - ダウンロード関数
+   - `downloadDeckRecipeImage()`: ダウンロード実行関数
+   - `generateFileName()`: ファイル名生成
+   - `downloadBlob()`: Blobダウンロード
+
+4. `extension/src/content/deck-recipe/index.ts` - エクスポート
+
+#### 実装された機能
+- ✅ Canvas初期化（動的サイズ計算）
+- ✅ 背景グラデーション（北東→南西、カラーバリエーション対応）
+- ✅ デッキ名描画（中央揃え、28px bold）
+- ✅ カードセクション描画
+  - セクションヘッダー（グラデーション背景）
+  - セクション名とカード数表示
+  - カード画像グリッド（10列配置）
+- ✅ タイムスタンプ描画（右下、ISO8601形式）
+- ✅ JPEG Blob変換（品質80%）
+- ✅ ダウンロード機能
+
+#### 残課題
+- [ ] fetchDeckData()の実装（DOMまたはAPI経由）
+- [ ] カードバック画像の追加と描画
+- [ ] QRコード生成（Phase 3）
+- [ ] ユニットテスト作成
+
+#### ブランチ
+- `feature/deck-recipe-image` ブランチで開発中
+
+---
+
 ## 初期調査（過去）
 - [x] 認証フローの初期調査（OAuth 2.0 等の確認）
 - [x] 認証に関する基本的な制約の整理（SameSite, HTTPOnly, CORS の確認）

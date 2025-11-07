@@ -1,5 +1,42 @@
 # 作業中のタスク
 
+## 2025-11-07: デッキレシピ画像作成機能の実装開始
+
+### 実装フェーズ
+**Phase 1**: 基本機能の実装（型定義、Canvas描画）✅ 完了
+
+### ブランチ構成
+- `main`: 安定版
+- `dev`: 開発版
+- `feature/deck-recipe-image`: デッキレシピ画像機能の実装ブランチ（現在）
+
+### 完了したタスク（Phase 1）
+1. ✅ TypeScript型定義の作成
+   - CreateDeckRecipeImageOptions
+   - DeckRecipeImageData
+   - ColorVariant
+   - CanvasDrawSettings
+   - 各種定数（FONT_SETTINGS, CARD_IMAGE_SETTINGS, LAYOUT_CONSTANTS等）
+2. ✅ createDeckRecipeImage()の実装
+   - Canvas初期化
+   - 背景グラデーション描画
+   - デッキ名描画
+   - カードセクション描画（ヘッダー、グリッド）
+   - タイムスタンプ描画
+   - Blob変換
+3. ✅ downloadDeckRecipeImage()の実装
+   - ファイル名生成
+   - ダウンロード実行
+4. ✅ TypeScriptコンパイル確認
+
+### 残課題
+- [ ] fetchDeckData()の実装（DOMまたはAPI経由でデッキデータを取得）
+- [ ] カードバック画像の追加と描画
+- [ ] QRコード生成（Phase 3）
+- [ ] ユニットテスト作成
+
+---
+
 ## 2025-11-07: 検索フォーム分析の完了と残課題
 
 ### 完了した作業（2025-11-07）
