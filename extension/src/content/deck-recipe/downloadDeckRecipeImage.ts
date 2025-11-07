@@ -23,7 +23,7 @@ export async function downloadDeckRecipeImage(
   // 1. deckDataがない場合は、dnoから公開デッキ情報を取得
   let deckData = options.deckData;
   if (!deckData && options.dno) {
-    const url = `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=4&pid=100&request_locale=ja&dno=${options.dno}`;
+    const url = `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&request_locale=ja&dno=${options.dno}`;
     const response = await axios.get(url);
     const parser = new DOMParser();
     const doc = parser.parseFromString(response.data, 'text/html');
