@@ -4,6 +4,29 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-09 (04:15): テストデータHTML取得完了
+
+### 実施内容
+
+1. **tests/combine/data/ディレクトリの作成**:
+   - テストデータ用のディレクトリを新規作成
+
+2. **intro.mdに記載されたURLでHTMLファイルを取得**:
+   - `deck-detail-public.html` (432KB) - デッキレシピ詳細ページ
+   - `card-search-result.html` (214KB) - カード検索結果ページ（ope=1）
+   - `card-detail.html` (308KB) - カード詳細ページ（ope=2, cid=12976）
+   - `card-faq-list.html` (210KB) - カードQA一覧ページ（faq_search.action ope=4, cid=5533）
+   - `faq-detail.html` (209KB) - 個別QAページ（faq_search.action ope=5, fid=115）
+
+3. **エンドポイント修正**:
+   - 当初、カードQA関連で`card_search.action`を使用していたが、intro.mdの記載通り`faq_search.action`に修正
+   - すべてのURLに`request_locale=ja`を追加
+
+### 取得方法
+
+- Chrome DevTools Protocol（CDP）経由でHTMLを取得
+- `tmp/fetch-correct-html.js`スクリプトを作成して実行
+
 ## 2025-11-09 (03:30): DeckType/DeckStyleの内部値化
 
 ### 実施内容
