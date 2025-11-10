@@ -4,6 +4,50 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-10 (14:49): 効果タイプ判定を画像ベースに変更
+
+### 実施内容
+
+1. **文字列判定から画像ベース判定への変更**:
+   - `SPELL_EFFECT_PATH_TO_ID`と`TRAP_EFFECT_PATH_TO_ID`マップを追加
+   - `effect_icon_*.png`のファイル名から効果タイプを判定
+   - 文字列ベースの`SPELL_EFFECT_TYPE_TEXT_TO_ID`使用を廃止
+
+2. **3箇所の修正**:
+   - `getCardDetail()`: カード詳細ページのパース
+   - `parseSpellCard()`: 魔法カード検索結果のパース
+   - `parseTrapCard()`: 罠カード検索結果のパース
+
+3. **Geminiレビューコメントへの追記**:
+   - 当初の文字列判定は言語依存であったことを説明
+   - 画像ベースの判定に改善したことを報告
+
+### 技術詳細
+
+**画像ベースの判定ロジック**:
+```typescript
+// box_card_effectのimg要素から効果タイプを抽出
+const effectImg = doc.querySelector('.box_card_effect .icon_img[src*="effect_icon"]') as HTMLImageElement;
+if (effectImg?.src) {
+  const match = effectImg.src.match(/effect_icon_([^.]+)\.png/);
+  if (match && match[1]) {
+    spellEffectType = SPELL_EFFECT_PATH_TO_ID[match[1]];
+    // 例: 'effect_icon_quickplay.png' → 'quickplay' → 'quick'
+  }
+}
+```
+
+**マッピング例**:
+- 魔法: `quickplay` → `quick`, `continuous` → `continuous`, `field` → `field`
+- 罠: `counter` → `counter`, `continuous` → `continuous`
+
+### 成果物
+
+- 言語非依存で堅牢な効果タイプ判定
+- コミット: 78b935e "fix: 魔法・罠の効果タイプ判定を文字列から画像ベースに変更"
+
+---
+
 ## 2025-11-10 (13:55): Geminiレビュー対応と設定制御機能の追加
 
 ### 実施内容
