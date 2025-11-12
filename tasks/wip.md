@@ -39,7 +39,7 @@
    - card-detail-tabsの幅を親要素に合わせて調整
 
 ### 現在対応中のバグ・課題
-1. ⏳ UI改善と翻訳
+1. ✅ UI改善と翻訳
    - ✅ infoタブのカード画像サイズ調整（90px）
    - ✅ 属性・種族・effectType・monsterTypeの日本語表示
    - ✅ Q&A展開/折りたたみ機能
@@ -61,7 +61,12 @@
    - ✅ QA/Products縮小時の自動上スクロール機能
      - ✅ 縮小で減った高さ分だけ上にスクロール調整
      - ✅ .card-tab-contentを正しいスクロールコンテナとして使用
-   - ⏳ スクロールバーの常時表示（レイアウトずれ防止）
+   - ✅ スクロールバーの常時表示（レイアウトずれ防止）
+     - ✅ .card-tab-contentに overflow-y: scroll を設定
+     - ✅ width: 100% と box-sizing: border-box を追加
+     - ✅ .card-list-results は overflow-y: visible（親がスクロール担当）
+     - ✅ pack-details のオーバーフロー防止（text-overflow: ellipsis）
+     - ✅ pack-details のグリッド列幅調整（60px 100px 1fr）
 
 ### 残課題
 - ⏭️ Load時のデッキ情報反映確認
