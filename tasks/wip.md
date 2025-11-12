@@ -37,6 +37,12 @@
    - CSS変数で青緑→赤紫グラデーションを定義
    - activeタブに統一グラデーション適用
    - card-detail-tabsの幅を親要素に合わせて調整
+12. ✅ UI改善（2025-11-12）
+   - deck-areasに下部65pxのmargin-bottom追加（検索エリアで隠れない対策）
+   - DeckSectionの.drop-zone-endのmin-heightを86px→0に変更（余計な空白削除）
+   - 検索結果をCardListコンポーネントに統一
+   - .search-contentにoverflow-y: autoとpadding追加（スクロール可能に）
+   - CardList.vueの.card-textにテキストはみ出し防止スタイル追加（4行省略表示）
 
 ### 現在対応中のバグ・課題
 1. ✅ UI改善と翻訳
