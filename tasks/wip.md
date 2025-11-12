@@ -50,6 +50,20 @@
    - CardDetail.vueから重複したカードリスト用スタイルを削除
    - search tabとrelated tabでCardListのスタイルを統一
    - CardQAコンポーネントを新規作成（Q&Aタブの分離準備）
+14. ✅ コンポーネント分離完了（2025-11-13）
+   - CardQAコンポーネント作成（Q&Aタブ専用）
+   - CardProductsコンポーネント作成（Productsタブ専用）
+   - CardDetail.vueからQA/Products関連のロジックとスタイルを分離
+   - 各コンポーネントは独立して動作可能に
+15. ✅ UI改善（2025-11-13）
+   - Grid表示時のカード画像サイズ拡大（36px→60px）
+   - Search areaで四行省略表示を有効化（一時対応）
+   - CardQA.vueのレイアウト改善
+     - 日付と展開ボタンを同じ行に配置（展開:左、日付:右）
+     - ボタンを四角形に変更（border-radius: 4px）
+     - ボタンサイズとアイコンを拡大（展開:24px/14px、縮小:32px/16px）
+   - CardProducts.vueのボタンスタイルも統一
+   - main-contentのpadding/gap削除
 
 ### 現在対応中のバグ・課題
 1. ✅ UI改善と翻訳
@@ -82,7 +96,7 @@
      - ✅ pack-details のグリッド列幅調整（60px 100px 1fr）
 
 ### 残課題
-- ⏭️ CardQAとCardProductsコンポーネントの分離完成
+- ✅ CardQAとCardProductsコンポーネントの分離完成
 - ⏭️ Load時のデッキ情報反映確認
 - ⏭️ Save機能のダイアログ実装
 - ⏭️ カードドラッグ＆ドロップ機能
