@@ -77,10 +77,9 @@
   - detectLanguageユーティリティの活用
 
 #### Medium Priority
-- [ ] .gitignoreに.drawio.dtmpを追加
-- [ ] deck-operations.ts: imgsパラメータ修正
-  - `${cardId}_1_1_1` → `${cardId}_${ciid}_1_1` に修正
-- [ ] console.log削除（DeckCard.vueなど）
+- ✅ .gitignoreに.drawio.dtmpを追加
+- ✅ deck-operations.ts: imgsパラメータ修正（ciid使用）
+- ✅ console.log削除（DeckCard.vue, CardList.vue）
 - [ ] deck-operations.ts: コメントアウトコード整理
 - [ ] CardList.vue: scrollToTopをemitベースに変更
 - [ ] RightArea.vue: 無限スクロール実装改善
