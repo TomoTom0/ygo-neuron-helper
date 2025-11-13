@@ -6,12 +6,95 @@
 
 **Phase 1（調査）**: ✅ 完了（全API実装・テスト完了）
 **Phase 2（独立機能）**: ✅ 完了（デッキ画像作成・シャッフル機能・オプションページ）
-**Phase 3（i18n）**: 🚀 開始
-**次のステップ**: 言語ごとのテキスト差異調査
+**Phase 3（デッキ編集UI + i18n基盤）**: ✅ 実装完了（PR#2マージ済み）
+**次のステップ**: v0.3.0リリース準備（バージョン更新）
+
+**最新の状況** (2025-11-13):
+- ✅ テスト修正完了（vitest対応: __dirname polyfill追加）
+- ✅ 単体テスト: 全Pass（tsx実行）
+- ✅ 結合テスト: 全Pass（tsx実行）
+- ✅ コンポーネントテスト: 51 passed | 3 skipped
+- ✅ オプションページ修正完了
+  - 拡張機能名を "Yugioh Neuron Helper" に統一
+  - "独自デッキ編集画面" の表記に統一
+  - 独自デッキ編集画面自体のON/OFF設定を追加（Omit and Usage タブ）
+  - Deck Edit Settings タブで詳細設定を提供
+  - 画面>機能の構造を維持
+  - 画像を public/images/ に配置し、オプションページで表示可能に
+- ✅ ドキュメント修正完了
+  - docs/usage/index.md: オプションページの説明を実装に合わせて更新
+  - README.md: すでに適切な画像を使用（修正不要）
+- ✅ ビルド・デプロイ完了
+- 📝 次: バージョン更新とリリース準備（スクリーンショット撮影後）
 
 ---
 
-## 🌐 Phase 3: 他言語対応（i18n）
+## v0.3.0 リリースタスク（優先度：最高）
+
+**目標日**: 2025-11-17  
+**現在**: ドキュメント修正中 - スクリーンショット追加必要
+
+### ブロッカー: ドキュメント修正
+
+#### ドキュメント構造修正 ✅
+- [x] README.md: デッキ画像サンプルをダイアログではなく実際の出力画像に変更
+- [x] README.md: 存在しないdeck-edit-demo.gifの参照を削除
+- [x] docs/usage/index.md: 画面>機能の構造に修正
+- [x] docs/usage/index.md: デッキ編集ページの詳細は deck-edit.md に移動
+- [x] docs/usage/index.md: オプションページを実装状況に合わせて修正
+- [x] オプションページの修正
+  - [x] "Deck Edit Sample" タブ削除
+  - [x] Omit and Usage タブを画面>機能の構造に再編（上下配置）
+  - [x] デッキ表示ページの各機能に画像を追加
+  - [x] デッキ編集ページのセクション追加
+  - [x] Deck Edit Settings タブを追加
+  - [x] 画像を public/images/ に配置
+
+#### スクリーンショット追加必要（手動）
+- [ ] `docs/usage/images/options-page.png` - オプションページ全体
+- [ ] `docs/usage/images/deck-edit-demo.gif` - デッキ編集UIのデモ（オプション）
+  
+### 完了: カード枚数制限実装 ✅
+- [x] main/extra/side合計で同じカード3枚まで制限
+- [x] テスト追加（17tests → 17tests 全pass）
+- [x] ドキュメント更新（docs/usage/deck-edit.md）
+- [x] ビルド・デプロイ完了
+- [x] テスト・ドキュメント最終確認完了
+
+### 完了: テスト実装 ✅
+**v0.3.0テスト**: 125tests（単体47 + 結合34 + コンポーネント54-3skip）
+**実行方法**:
+- `npm test` - 全テスト（tsx）
+- `npm run test:components` - コンポーネントテスト（vitest）
+- `npm run test:vitest` - 全vitestテスト
+
+### 必須タスク（リリースブロッカー）
+
+#### 2. ドキュメント整備 ✅
+- [x] ユーザー向け: docs/usage/deck-edit.md作成
+- [x] README.md更新（v0.3.0新機能説明）
+- [x] 開発者向け: docs/dev/architecture.md, i18n.md作成
+
+#### 3. オプションページ拡張 ✅
+- [x] デッキ編集機能の設定UI（機能ON/OFF、デフォルト表示モード等）
+- [x] 多言語設定UI（自動/手動選択）
+- [x] 設定の保存・読み込み機能
+- [x] DeckEditSettings型定義とユーティリティ関数
+
+#### 4. リリース準備
+- [x] バージョン更新（version.dat, manifest.json, package.json → 0.3.0）
+- [x] CHANGELOG作成（docs/changelog/v0.3.0.md, docs/changelog/index.md）
+- [x] ドキュメント絵文字削除（changelog/index.md, changelog/v0.3.0.md）
+- [x] オプションページに独自デッキ編集画面の画像追加（3枚）
+- [x] ブランチ保護ルール設定（main/dev）
+- [x] PR#3レビュー結果確認・対応完了
+  - [x] レビューコメント#1: CHANGELOG.mdプレースホルダーURL修正
+  - [x] レビューコメント#2: テストフレームワークvitest統一
+- [ ] 最終動作確認（Chrome/Edge）
+
+---
+
+## Phase 3完了内容（参考）
 
 ### 1. 言語差異の調査（優先度: 最高）
 

@@ -4,6 +4,96 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-14: PR#3レビュー対応完了
+
+### レビューコメント対応
+- ✅ レビューコメント#1: CHANGELOG.mdのプレースホルダーURL修正
+  - `yourusername` → `TomoTom0` に修正（3箇所）
+- ✅ レビューコメント#2: テストフレームワークをvitestに統一
+  - language-detector.test.ts: カスタムtest関数 → vitest形式（9 tests）
+  - mapping-manager.test.ts: カスタムtest関数 → vitest形式（16 tests）
+  - card-animation.test.ts: すでにvitest形式（変更なし）
+
+**タイムスタンプ**: 2025-11-14 05:27
+
+---
+
+## 2025-11-13: v0.3.0実装完了・PR#2マージ
+
+### Phase 3: デッキ編集UI + 多言語対応基盤
+
+#### デッキ編集UI実装
+- ✅ 基本UI実装（Vue + Pinia）
+  - DeckEditLayout.vue（メインレイアウト）
+  - DeckEditTopBar.vue（トップバー）
+  - DeckSection.vue（デッキエリア）
+  - RightArea.vue（右サイドバー）
+- ✅ カードコンポーネント
+  - DeckCard.vue（カード表示・操作）
+  - CardList.vue（カードリスト）
+  - CardDetail.vue（カード詳細）
+  - CardInfo.vue（カード情報タブ）
+  - CardQA.vue（Q&Aタブ）
+  - CardProducts.vue（収録パックタブ）
+- ✅ 状態管理（Pinia）
+  - deck-edit.ts（デッキ編集ストア）
+  - displayOrder管理（UUID付きカード配列）
+  - FLIP アニメーション対応
+- ✅ 機能実装
+  - カードドラッグ＆ドロップ
+  - カード検索（名前/属性/種族等）
+  - リスト/グリッド表示切り替え
+  - ソート機能（新しい順/古い順/名前順）
+  - デッキロード・保存
+  - カード詳細表示（Info/Related/Products/QA）
+  - 収録パック展開・折りたたみ
+  - 関連カード表示
+- ✅ UI改善
+  - レスポンシブデザイン
+  - FLIPアニメーション
+  - スクロール最適化
+  - ボタンスタイル統一
+
+#### 多言語対応基盤
+- ✅ 言語検出
+  - language-detector.ts（ページ言語自動検出）
+  - #nowlanguage要素、meta og:url、URLパラメータから検出
+- ✅ マッピングテーブル
+  - 属性・種族・エフェクトタイプのマッピング
+  - scripts/setup/generate-card-maps.ts（自動生成スクリプト）
+  - mapping-manager.ts（マッピング管理）
+- ✅ API多言語対応
+  - getCardDetail: 言語引数追加、自動検出
+  - saveDeckInternal: request_locale自動検出
+  - getDeckDetail: request_locale自動検出
+  - getDeckListInternal: request_locale自動検出
+
+#### 型定義改善
+- ✅ CardInfo型の改善
+  - imageId → ciid に統一
+  - ciid/imgs を必須化
+  - getCardImageUrl関数追加（型と密結合）
+
+#### コード品質改善（PR#2レビュー対応）
+- ✅ .gitignoreに*.dtmp追加
+- ✅ imgsパラメータ修正（ciid使用）
+- ✅ console.log削除
+- ✅ コメントアウトコード削除
+- ✅ scrollToTopをemitベースに変更（DOM依存解消）
+- ✅ sortDisplayOrderForOfficialに詳細コメント追加
+
+#### ドキュメント
+- ✅ docs/usage/index.md更新（デッキ編集画面追加）
+- ✅ docs/research/i18n-investigation.md（多言語調査）
+- ✅ docs/dev/privacy-policy.md
+
+#### リリース
+- ✅ PR#2作成・レビュー対応・マージ
+- ✅ devブランチにマージ完了
+- ✅ バージョン 0.2.1 → 0.2.2（開発版）
+
+---
+
 ## 2025-11-10 (16:51): tmp/prototype DeckCard リファクタリング
 
 ### 実施内容
@@ -1537,3 +1627,718 @@ const html = response.data;
 - `src/types/deck-recipe-image.ts` - cgid追加
 
 **バージョン:** 0.2.0
+
+---
+
+## 2025-11-13 (20:15): v0.3.0デモ用スクリーンショット撮影完了
+
+### 実施内容
+
+1. **日本語環境への切り替え**:
+   - 日本語版URLに切り替え（`?request_locale=ja`パラメータ使用）
+   - 英語環境では検索機能が動作しない問題を解決
+   - Chromiumを再起動してクリーンな状態から撮影
+
+2. **スクリーンショット7枚を撮影** (`docs/usage/`):
+   - `01-initial-state.png` (259KB): 初期状態（デッキ名「超重オルフェ」、main 40枚、extra 15枚）
+   - `02-deck-name-input.png` (260KB): デッキ名入力（「サンプルデッキ - v0.3.0」）
+   - `03-card-detail-info.png` (333KB): カード詳細（Info）「オルフェゴール・ディヴェル」
+   - `04-card-detail-related.png` (339KB): カード詳細（Related）関連カード5件表示
+   - `05-card-detail-products.png` (339KB): カード詳細（Products）収録パック情報
+   - `06-card-detail-qa.png` (339KB): カード詳細（Q&A）関連カード表示
+   - `07-search-function.png` (341KB): 検索機能「ブラック・マジシャン」11件の検索結果
+
+3. **撮影スクリプトの作成**:
+   - `tmp/browser/capture-clean.js`: Chrome DevTools Protocol (CDP)を使用した自動スクリーンショット撮影
+   - Node.js + WebSocket経由でChromiumを制御
+   - 各操作の間に適切な待機時間を設定
+
+### 技術詳細
+
+**使用技術**:
+- Chrome DevTools Protocol (CDP)
+- WebSocket通信（`.chrome_playwright_ws`からURL取得）
+- `Page.navigate`: ページ遷移
+- `Page.captureScreenshot`: スクリーンショット撮影
+- `Runtime.evaluate`: JavaScriptコード実行（DOM操作）
+- `Input.dispatchMouseEvent`: マウスクリック
+- `Input.dispatchKeyEvent`: キーボード入力（Ctrl+A）
+- `Input.insertText`: テキスト入力
+
+**操作フロー**:
+1. 日本語版ページにナビゲート（5秒待機）
+2. 初期状態を撮影
+3. デッキ名入力欄に「サンプルデッキ - v0.3.0」を入力（1秒待機）
+4. Cardタブに切り替え（1秒待機）
+5. 左側デッキエリアの最初のカードの情報ボタンをクリック（2秒待機）
+6. カード詳細タブ（Related/Products/Q&A）を順番にクリック（各2秒待機）
+7. Searchタブに切り替え、検索欄に「ブラック・マジシャン」を入力（検索ボタンクリック、3秒待機）
+
+**セレクタ**:
+- デッキ名入力: `.deck-name-input`
+- タブ切り替え: `.right-area > .tabs > button`
+- カード選択: `.main-deck .card-item` → `.card-btn.top-left`
+- カード詳細タブ: `.right-area button` (textContent で判定)
+- 検索欄: `.search-input-bottom input`
+- 検索ボタン: `.search-btn`
+
+### 変更ファイル
+
+- `tmp/browser/capture-clean.js`: 新規作成
+- `tmp/browser/access-japanese-url.js`: 日本語版URL切り替えスクリプト
+- `tmp/browser/switch-to-japanese.js`: 言語切り替えスクリプト
+- `tmp/browser/test-search-japanese.js`: 日本語環境での検索テスト
+- `docs/usage/*.png`: 7枚のスクリーンショット
+
+### 成果物
+
+v0.3.0デッキ編集機能のデモンストレーション用スクリーンショット一式が完成。
+- デッキ名入力
+- カード詳細表示（Info/Related/Products/Q&A）
+- カード検索機能
+
+### 反省点
+
+1. **Headerタブの誤解**:
+   - Headerタブがdisabledであることを理解せず、無駄に操作しようとした
+   - 画面幅が広い場合はDeckタブも存在しないことを後から理解
+
+2. **英語環境での検索失敗**:
+   - 当初、英語環境で検索を試み、何度も失敗
+   - 日本語環境に切り替える必要があることに気づくのが遅れた
+
+3. **Vue.jsの状態保持**:
+   - Chromiumを再起動しないと、前回のテストの影響（"TEST NAME"）が残った
+   - ページリロードだけでは不十分だった
+
+### 次のステップ
+
+- `docs/usage/index.md` にスクリーンショットを埋め込む
+- 使い方ドキュメントを更新
+
+---
+
+## 2025-11-14 (03:31): v0.3.0 デッキ編集機能ドキュメント更新
+
+### 概要
+
+前回撮影したv0.3.0デッキ編集機能のスクリーンショット（全7枚）をドキュメントに組み込み、ユーザー向け使い方ガイドを完成させました。
+
+### 実施内容
+
+#### 1. `docs/usage/deck-edit.md` の更新
+
+**追加したセクション:**
+
+1. **UIの全体構成セクション**
+   - スクリーンショット: `images/01-initial-state.png`
+   - 内容: 2カラム構成（左側デッキエリア、右側タブエリア）の説明
+   - 各タブ（Header/Search/Card）の役割を明記
+
+2. **カード詳細表示セクション（機能7として追加）**
+   - Info タブ: `images/03-card-detail-info.png`
+   - Related タブ: `images/04-card-detail-related.png`
+   - Products タブ: `images/05-card-detail-products.png`
+   - Q&A タブ: `images/06-card-detail-qa.png`
+   - 各タブの表示内容を詳細に説明
+
+3. **カード検索エリアの拡充**
+   - スクリーンショット: `images/07-search-function.png`
+   - 使い方の手順を追加（1〜4ステップ）
+
+4. **使用例の改善**
+   - デッキ名入力: `images/02-deck-name-input.png`
+   - 基本的なデッキ編集フローにステップ3として追加
+
+#### 2. `docs/usage/index.md` の更新
+
+- バージョン情報を **0.2.0 → 0.3.0** に更新
+
+### 変更ファイル
+
+- `docs/usage/deck-edit.md`: スクリーンショット7枚を組み込み、説明を大幅に拡充
+- `docs/usage/index.md`: バージョン情報更新
+
+### 成果物
+
+v0.3.0デッキ編集機能の完全なビジュアルガイドが完成しました。
+- UIの全体構成が一目で理解できる
+- 各機能（カード検索、詳細表示、デッキ名入力）の使い方が画像付きで説明されている
+- カード詳細の4つのタブ（Info/Related/Products/Q&A）それぞれのスクリーンショット付き
+
+### 次のステップ
+
+- 必要に応じてchangelog（`docs/changelog/v0.3.0.md`）を更新
+- README.mdにv0.3.0の新機能を追加
+
+---
+
+## 2025-11-14 (03:45): Products/Q&Aスクリーンショット修正
+
+### 概要
+
+Products/Q&Aタブのスクリーンショットが正しく撮影されていなかった問題を調査・修正しました。
+
+### 問題の詳細
+
+**症状:**
+- `05-card-detail-products.png` と `06-card-detail-qa.png` がRelatedタブの画像と同一
+- ファイルサイズが全て346190バイトで完全一致
+
+**根本原因:**
+1. **WebSocket URL の誤り**: ブラウザレベル（`/devtools/browser/...`）のURLを使用していたため、`Page.navigate` や `Runtime.evaluate` が機能していなかった
+2. **Runtime.evaluateの構文エラー**: `return`文を直接使用していたため、"SyntaxError: Illegal return statement" が発生
+
+### 解決方法
+
+#### 1. WebSocket URL の修正
+
+**修正前（誤り）:**
+```bash
+# /json/version から取得（ブラウザレベル）
+ws://localhost:9222/devtools/browser/a93a1def-c021-41a1-b2db-0f4c95af67dc
+```
+
+**修正後（正解）:**
+```bash
+# /json から最初のページを取得（ページレベル）
+curl -s http://localhost:9222/json | grep -o 'ws://localhost:9222/devtools/page/[^"]*' | head -1
+ws://localhost:9222/devtools/page/BCF18CA54C69DCDE91B9D563E036DDFC
+```
+
+#### 2. Runtime.evaluateの構文修正
+
+**修正前（エラー）:**
+```javascript
+await sendCommand('Runtime.evaluate', {
+  expression: `
+    const cardTabs = document.querySelectorAll('.card-detail-tabs button');
+    const targetTab = Array.from(cardTabs).find(t => t.textContent.trim() === 'Products');
+    if (targetTab) targetTab.click();
+  `
+});
+```
+
+**修正後（IIFE使用）:**
+```javascript
+await sendCommand('Runtime.evaluate', {
+  expression: `
+    (() => {
+      const cardTabs = document.querySelectorAll('.card-detail-tabs button');
+      const targetTab = Array.from(cardTabs).find(t => t.textContent.trim() === 'Products');
+      if (targetTab) targetTab.click();
+    })()
+  `
+});
+```
+
+### 調査プロセス
+
+1. **ファイルサイズ比較**: 3つのファイルが完全に同一サイズ（346190B）であることを確認
+2. **接続テスト**: WebSocket接続をテストし、ブラウザレベルURLでは `Page.navigate` が使えないことを発見
+3. **DOM調査**: カード詳細タブの構造を調査し、セレクタ `.card-detail-tabs button` が正しいことを確認
+4. **構文エラー発見**: Runtime.evaluateで `return` 文がエラーになることを特定
+5. **修正・再撮影**: 両方の問題を修正し、スクリーンショットを再撮影
+
+### 変更ファイル
+
+- `scripts/screenshots/deck-edit/capture-screenshots.js`: タブクリック処理をIIFEで囲むように修正
+- `.chrome_playwright_ws`: ページレベルのWebSocket URLに更新
+- `docs/usage/images/04-card-detail-related.png`: 再撮影（346190バイト）
+- `docs/usage/images/05-card-detail-products.png`: 再撮影（279430バイト）
+- `docs/usage/images/06-card-detail-qa.png`: 再撮影（299406バイト）
+
+### 成果物
+
+Products/Q&Aタブのスクリーンショットが正しく撮影されました。
+- 各タブで異なるファイルサイズ（異なる画像であることを確認）
+- Products: パック・商品情報が正しく表示
+- Q&A: 公式Q&A情報が正しく表示
+
+### 教訓
+
+1. **WebSocket URLの種類**: CDP には「ブラウザレベル」と「ページレベル」のURLがあり、ページ操作にはページレベルが必要
+2. **Runtime.evaluateの制約**: 式として評価されるため、トップレベルの `return` 文は使えない（IIFEで囲む必要がある）
+3. **ファイルサイズ比較**: スクリーンショットが正しく撮影されたか確認する簡単な方法
+
+---
+
+## 2025-11-14 (04:04): 画像管理の整理
+
+### 概要
+
+`docs/usage/images/` と `public/images/` の画像が整理されておらず、重複や不要な画像が多数存在していた問題を解決しました。
+
+### 問題の詳細
+
+**問題点:**
+1. ✗ `docs/usage/images/` にサブフォルダなし（24ファイルが直下に配置）
+2. ✗ `public/images/` と `docs/usage/images/` で17ファイルが重複
+3. ✗ 不要な画像が残存（`覇王魔術師_2025-11-09T09-23-27.jpg` など）
+4. ✗ シンボリックリンクなどの管理手法が未使用
+
+### 整理方針
+
+**画像の用途を整理:**
+- **`public/images/`**: 拡張機能で使用する画像（今回は使用されていないため削除）
+- **`docs/usage/images/`**: ドキュメント用画像（機能別にサブフォルダで分類）
+
+**新しいディレクトリ構造:**
+```
+docs/usage/images/
+├── deck-edit/       # デッキ編集機能（7ファイル）
+├── shuffle-sort/    # シャッフル・ソート機能（4ファイル）
+├── deck-image/      # デッキ画像作成機能（9ファイル）
+└── README.md        # 画像一覧とスクリーンショット撮影方法
+```
+
+### 実施内容
+
+#### 1. サブディレクトリ作成と画像移動
+
+```bash
+# deck-edit/
+01-initial-state.png
+02-deck-name-input.png
+03-card-detail-info.png
+04-card-detail-related.png
+05-card-detail-products.png
+06-card-detail-qa.png
+07-search-function.png
+
+# shuffle-sort/
+shuffle-sort-animation.gif
+shuffle-sort-buttons.png
+card-lock-feature.png
+card-locked-state.png
+
+# deck-image/
+deck-image-button.png
+deck-image-dialog.gif
+image-dialog-color-red.png
+image-dialog-color-blue.png
+image-dialog-qr-on.png
+image-dialog-qr-off.png
+image-dialog-download-button.png
+image-dialog-overview.png
+image-dialog-deck-name.png
+```
+
+#### 2. 不要な画像削除
+
+- `覇王魔術師_2025-11-09T09-23-27.jpg` (4.9MB): テスト用画像、不要
+- `deck-recipe-sample.png` (835KB): 使用されていない
+- `deck-display-page-overview.png` (3.9MB): 使用されていない
+
+#### 3. `public/images/` 削除
+
+拡張機能のソースコードで使用されていないため、ディレクトリごと削除。
+
+#### 4. ドキュメント内の画像パス更新
+
+**`docs/usage/deck-edit.md`:**
+- `./images/01-initial-state.png` → `./images/deck-edit/01-initial-state.png`
+- （全7枚のスクリーンショット）
+
+**`docs/usage/index.md`:**
+- `./images/shuffle-sort-animation.gif` → `./images/shuffle-sort/shuffle-sort-animation.gif`
+- `./images/deck-image-button.png` → `./images/deck-image/deck-image-button.png`
+- （全13枚の画像）
+
+#### 5. README.md 更新
+
+新しいディレクトリ構造を反映し、各サブフォルダの内容を説明。
+
+### 変更ファイル
+
+**削除:**
+- `public/images/` (ディレクトリごと削除)
+- `docs/usage/images/覇王魔術師_2025-11-09T09-23-27.jpg`
+- `docs/usage/images/deck-recipe-sample.png`
+- `docs/usage/images/deck-display-page-overview.png`
+
+**移動:**
+- 20ファイルをサブディレクトリに移動
+
+**更新:**
+- `docs/usage/deck-edit.md`: 画像パス更新（7箇所）
+- `docs/usage/index.md`: 画像パス更新（13箇所）
+- `docs/usage/images/README.md`: 新構造に全面改訂
+
+### 成果物
+
+**整理後の状態:**
+- ✅ 機能別にサブフォルダで分類（3フォルダ）
+- ✅ 重複なし（`public/images/` 削除）
+- ✅ 不要な画像削除（9.7MB削減）
+- ✅ ドキュメント内のパス全て更新
+- ✅ README.mdで構造を文書化
+
+**合計ファイル数:**
+- 整理前: 24ファイル（直下） + 17ファイル（public/images/）= 41ファイル
+- 整理後: 20ファイル（3サブフォルダ） + 1 README = 21ファイル
+
+### 方針の決定（修正版）
+
+**❌ 当初の誤った判断:**
+- `public/images/` が未使用だと判断して削除してしまった
+- しかし実際は `src/options/App.vue` で使用されていた
+
+**✅ 正しい方針（シンボリックリンク使用）:**
+- **実体**: `docs/usage/images/` に配置（ドキュメントが正確な情報源）
+- **シンボリックリンク**: `public/images/` から `docs/usage/images/` へリンク
+- optionsページで使用される画像:
+  - `shuffle-sort-animation.gif` → `docs/usage/images/shuffle-sort/`
+  - `deck-recipe-sample.png` → `docs/usage/images/deck-image/`
+
+**シンボリックリンクの利点:**
+- 画像の重複管理を避ける
+- ドキュメントと拡張機能で同じ画像を使用
+- 更新時に1箇所を変更するだけで済む
+
+---
+
+## 2025-11-14 (04:16): 画像管理方針の修正（シンボリックリンク採用）
+
+### 概要
+
+前回の作業で `public/images/` を削除してしまったが、実際には `src/options/App.vue` で使用されていた。シンボリックリンクを使用して正しく復元しました。
+
+### 問題の発見
+
+**誤った判断:**
+- `grep -r "public/images"` でソースコードを検索したが、Vueビルドシステムでは `/images/` という相対パスで参照されるため発見できなかった
+- `src/options/App.vue` で以下の2つの画像を使用：
+  - `/images/shuffle-sort-animation.gif`
+  - `/images/deck-recipe-sample.png`
+
+### 解決方法
+
+**シンボリックリンクによる管理:**
+
+1. **実体の配置先**: `docs/usage/images/`（機能別サブフォルダ）
+   - `docs/usage/images/shuffle-sort/shuffle-sort-animation.gif`
+   - `docs/usage/images/deck-image/deck-recipe-sample.png`
+
+2. **シンボリックリンク**: `public/images/`
+   ```bash
+   public/images/shuffle-sort-animation.gif -> ../../docs/usage/images/shuffle-sort/shuffle-sort-animation.gif
+   public/images/deck-recipe-sample.png -> ../../docs/usage/images/deck-image/deck-recipe-sample.png
+   ```
+
+### 最終的なディレクトリ構造
+
+```
+docs/usage/images/
+├── deck-edit/           # デッキ編集機能（7ファイル）
+├── shuffle-sort/        # シャッフル・ソート機能（4ファイル + deck-recipe-sample.png復元前は3）
+│   └── shuffle-sort-animation.gif  ← 実体（optionsページでも使用）
+├── deck-image/          # デッキ画像作成機能（10ファイル）
+│   └── deck-recipe-sample.png      ← 実体（optionsページでも使用、gitから復元）
+└── README.md
+
+public/images/
+├── shuffle-sort-animation.gif → ../../docs/usage/images/shuffle-sort/
+└── deck-recipe-sample.png     → ../../docs/usage/images/deck-image/
+```
+
+### 復元作業
+
+1. `public/images/` ディレクトリ再作成
+2. `deck-recipe-sample.png` をgitから復元（835KB）
+3. `docs/usage/images/deck-image/` に配置
+4. シンボリックリンク作成
+
+### 教訓
+
+1. **Vueビルドシステムの理解**: `public/` の静的ファイルは `/` でアクセスされる
+2. **検索の盲点**: 相対パス参照（`/images/`）は `public/images` で検索しても見つからない
+3. **ソースファイルの確認**: `src/` 内の `.vue` ファイルを確認すべきだった
+4. **シンボリックリンクの有効性**: 重複管理を避け、単一の情報源を維持できる
+
+
+---
+
+## 2025-11-14 04:30: オプションページに独自デッキ編集画面の画像追加
+
+### 実施内容
+
+**目的**: オプションページ（`src/options/App.vue`）に独自デッキ編集画面のスクリーンショットを追加し、機能説明を強化
+
+### 追加した画像（3枚厳選）
+
+1. **deck-edit-initial-state.png** (331 KB)
+   - デッキ編集画面の全体UI（初期状態）
+   - DNO入力、カード検索エリア、デッキエリア、カード詳細エリアを全て表示
+
+2. **deck-edit-search-function.png** (341 KB)
+   - カード検索機能の詳細
+   - リスト表示、ソート機能、無限スクロール対応を示す
+
+3. **deck-edit-card-detail-info.png** (332 KB)
+   - カード詳細表示（Infoタブ）
+   - カードステータス、効果テキスト、制限情報を表示
+
+### 実装手順
+
+#### 1. シンボリックリンク作成 (`public/images/`)
+
+```bash
+ln -s ../../docs/usage/images/deck-edit/01-initial-state.png public/images/deck-edit-initial-state.png
+ln -s ../../docs/usage/images/deck-edit/07-search-function.png public/images/deck-edit-search-function.png
+ln -s ../../docs/usage/images/deck-edit/03-card-detail-info.png public/images/deck-edit-card-detail-info.png
+```
+
+#### 2. Vue コンポーネント更新 (`src/options/App.vue`)
+
+**変更箇所**: 148-173行目の `deckEditFeature` 定義
+
+**Before:**
+```javascript
+images: [],
+```
+
+**After:**
+```javascript
+images: [
+  { src: '/images/deck-edit-initial-state.png', alt: 'デッキ編集画面の全体UI（初期状態）' },
+  { src: '/images/deck-edit-search-function.png', alt: 'カード検索機能（リスト表示・ソート）' },
+  { src: '/images/deck-edit-card-detail-info.png', alt: 'カード詳細表示（Infoタブ）' }
+],
+```
+
+**追加セクション**: `usage` に「アクセス方法」を追加
+
+```html
+<h5>アクセス方法</h5>
+<ul>
+  <li>URL: <code>https://www.db.yugioh-card.com/yugiohdb/#/ytomo/edit</code></li>
+  <li>デッキ表示ページから「編集」ボタンでアクセス可能です。</li>
+</ul>
+```
+
+#### 3. ドキュメント作成 (`public/images/README.md`)
+
+- シンボリックリンク構造の説明
+- 使用箇所の明記
+- 新しい画像の追加方法
+- 注意事項（単一ソース維持の重要性）
+
+#### 4. ビルド＆デプロイ
+
+```bash
+npm run build      # 成功: 3つの新しい画像がdist/images/にコピーされた
+./scripts/deploy.sh # 成功: WSL本番環境にデプロイ完了
+```
+
+### 最終的なファイル構成
+
+```
+public/images/
+├── shuffle-sort-animation.gif       -> ../../docs/usage/images/shuffle-sort/
+├── deck-recipe-sample.png           -> ../../docs/usage/images/deck-image/
+├── deck-edit-initial-state.png      -> ../../docs/usage/images/deck-edit/01-initial-state.png
+├── deck-edit-search-function.png    -> ../../docs/usage/images/deck-edit/07-search-function.png
+├── deck-edit-card-detail-info.png   -> ../../docs/usage/images/deck-edit/03-card-detail-info.png
+└── README.md  # 新規作成
+```
+
+### 効果
+
+**オプションページでの表示強化:**
+- 独自デッキ編集画面の機能が視覚的に理解しやすくなった
+- 3つの代表的スクリーンショットで主要機能をカバー：
+  1. 全体UI構成
+  2. カード検索機能
+  3. カード詳細表示
+- アクセス方法を明示し、ユーザーが機能を発見しやすくなった
+
+**画像管理の一貫性:**
+- `docs/usage/images/` を単一の情報源として維持
+- `public/images/` はシンボリックリンクのみ（5ファイル）
+- ビルド時にWebpackが自動追跡・コピー
+
+### 関連ファイル
+
+- `src/options/App.vue`: deckEditFeature更新（148-173行目）
+- `public/images/`: 3つのシンボリックリンク追加
+- `public/images/README.md`: 新規作成
+- `docs/usage/images/deck-edit/`: 実体ファイル（7枚）
+- `tasks/done.md`: 本記録
+
+---
+
+## 2025-11-14 04:45: v0.3.0リリース準備完了・PR#3更新
+
+### 実施内容
+
+**目的**: v0.3.0のリリース準備を完了し、devブランチへのPRを更新
+
+### 完了タスク
+
+1. **Changelog作成**
+   - docs/changelog/v0.3.0.md: 詳細なリリースノート作成
+   - docs/changelog/index.md: バージョン一覧とロードマップ更新
+   - ユーザー向けドキュメントから絵文字削除
+
+2. **オプションページ改善**
+   - 独自デッキ編集画面の画像を3枚追加
+   - src/options/App.vue: deckEditFeatureに画像とアクセス方法追加
+
+3. **画像管理の整理**
+   - docs/usage/images/ を機能別サブフォルダに整理
+   - public/images/ に3つのシンボリックリンク追加
+   - public/images/README.md作成
+
+4. **スクリーンショット自動化**
+   - scripts/screenshots/deck-edit/capture-screenshots.js作成
+   - Products/QAタブのスクリーンショット重複問題修正
+
+5. **ドキュメント更新**
+   - docs/usage/deck-edit.md: 7つのスクリーンショット追加
+   - docs/usage/index.md: 画像パス更新、バージョン0.3.0に変更
+
+6. **タスク管理**
+   - tasks/todo.md: リリース準備タスクをチェック済みに更新
+
+### Git作業
+
+```bash
+git add -A
+git commit -m "docs: v0.3.0リリース準備完了"
+git push origin feature/v0.3.0-tests
+gh pr comment 3 --body "最新のコミット: v0.3.0リリース準備完了"
+```
+
+### テスト結果
+
+全テストPass（125 tests）
+- 単体テスト: 9 tests
+- 結合テスト: 17 tests
+- コンポーネントテスト: 51 passed / 3 skipped
+
+### ビルド＆デプロイ
+
+- npm run build: 成功
+- ./scripts/deploy.sh: WSL本番環境へデプロイ完了
+
+### PR状況
+
+- **PR#3**: https://github.com/TomoTom0/ygo-neuron-helper/pull/3
+- **Base**: dev
+- **Status**: OPEN
+- **コミット追加**: b8cdf68 "docs: v0.3.0リリース準備完了"
+
+### リリース準備状況
+
+- [x] バージョン更新（0.3.0）
+- [x] CHANGELOG作成
+- [x] ドキュメント整備
+- [x] オプションページ改善
+- [x] 画像管理整理
+- [x] テスト全Pass
+- [x] ビルド・デプロイ確認
+- [x] Git保存・プッシュ・PR更新
+- [ ] 最終動作確認（Chrome/Edge）← 次のステップ
+
+### 次のステップ
+
+1. Chrome/Edgeでの最終動作確認
+2. 問題なければPR#3をdevにマージ
+3. v0.3.0リリース
+
+---
+
+## 2025-11-14 05:00: ブランチ保護ルール設定完了
+
+### 実施内容
+
+**目的**: main/devブランチに保護ルールを適用し、特定のブランチからのみPRを受け付けるように設定
+
+### 実装内容
+
+#### 1. GitHub Actionsワークフロー
+- **.github/workflows/branch-protection.yml**
+  - mainへのPR: devブランチからのみ許可
+  - devへのPR: feature/fix/docs/refactor/testブランチからのみ許可
+  - ポリシー違反時はワークフロー失敗→マージ不可
+
+#### 2. ブランチ保護設定スクリプト
+- **scripts/setup/setup-branch-protection.sh**
+  - GitHub REST APIを使用してブランチ保護を設定
+  - main/devブランチに適用
+
+#### 3. 保護ルール詳細
+
+**mainブランチ（最も厳格）**:
+- PR必須（直接push禁止）
+- devからのPRのみ（GitHub Actions強制）
+- ステータスチェック必須: check-branch-policy
+- 署名済みコミット必須
+- force push禁止
+- 削除禁止
+- 管理者も従う（enforce_admins: true）
+- 会話解決必須
+
+**devブランチ（中程度）**:
+- PR必須（直接push禁止）
+- feature/fix/docs/refactor/testからのPRのみ（GitHub Actions強制）
+- ステータスチェック必須: check-branch-policy
+- 署名済みコミット必須
+- force push禁止
+- 削除禁止
+- 会話解決必須
+
+#### 4. ドキュメント
+- **docs/dev/branch-protection.md**
+  - ブランチ戦略の説明
+  - 保護ルール詳細
+  - 設定方法
+  - 署名済みコミットの設定手順
+
+### 技術的な工夫
+
+#### ブランチ制限の実現方法
+- GitHub APIではベースブランチ制限を直接設定できない
+- **GitHub Actions + ステータスチェック**で実現
+  1. PRが作成されるとワークフローが実行
+  2. baseブランチとheadブランチを検証
+  3. ポリシー違反→ワークフロー失敗
+  4. ステータスチェック必須設定により、失敗時はマージ不可
+
+#### APIパラメータ形式
+- 当初`-f`フラグでJSON文字列を渡して失敗
+- `--input -`でHeredoc形式に修正して成功
+
+### 実行結果
+
+```bash
+./scripts/setup/setup-branch-protection.sh
+```
+
+**mainブランチ**:
+- required_status_checks: ✓ (strict: true, contexts: ["check-branch-policy"])
+- required_signatures: ✓
+- enforce_admins: ✓
+- required_conversation_resolution: ✓
+- allow_force_pushes: ✗
+- allow_deletions: ✗
+
+**devブランチ**:
+- required_status_checks: ✓ (strict: true, contexts: ["check-branch-policy"])
+- required_signatures: ✓
+- enforce_admins: ✗（緊急時の対応を可能にする）
+- required_conversation_resolution: ✓
+- allow_force_pushes: ✗
+- allow_deletions: ✗
+
+### コミット
+
+- e300252: "ci: add branch protection rules and workflow"
+- 750117c: "fix(ci): fix branch protection script JSON format"
+
+### 次のステップ
+
+- PR#3のレビュー結果確認
+- 問題なければdevにマージ
+- devからmainへのPR作成（この時点でブランチ保護が動作開始）
