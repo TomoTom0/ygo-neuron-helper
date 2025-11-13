@@ -4,6 +4,20 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-14: PR#3レビュー対応完了
+
+### レビューコメント対応
+- ✅ レビューコメント#1: CHANGELOG.mdのプレースホルダーURL修正
+  - `yourusername` → `TomoTom0` に修正（3箇所）
+- ✅ レビューコメント#2: テストフレームワークをvitestに統一
+  - language-detector.test.ts: カスタムtest関数 → vitest形式（9 tests）
+  - mapping-manager.test.ts: カスタムtest関数 → vitest形式（16 tests）
+  - card-animation.test.ts: すでにvitest形式（変更なし）
+
+**タイムスタンプ**: 2025-11-14 05:27
+
+---
+
 ## 2025-11-13: v0.3.0実装完了・PR#2マージ
 
 ### Phase 3: デッキ編集UI + 多言語対応基盤
