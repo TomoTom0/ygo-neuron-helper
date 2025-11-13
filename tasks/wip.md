@@ -146,6 +146,9 @@
    - getCardImageUrl関数をcard.tsに追加（型と密結合）
    - buildCardImageUrlは非推奨化、getCardImageUrlに委譲
    - 全箇所でgetCardImageUrlに統一
+17. ✅ カード枚数制限実装（2025-11-13）
+   - main/extra/sideで同じカードは合計3枚まで
+   - addCard関数で制限チェック（無言で無効化）
 
 ### PR#2レビュー対応（2025-11-13）
 #### High Priority
