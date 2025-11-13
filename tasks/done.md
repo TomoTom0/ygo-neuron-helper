@@ -2151,3 +2151,84 @@ public/images/
 - `public/images/README.md`: 新規作成
 - `docs/usage/images/deck-edit/`: 実体ファイル（7枚）
 - `tasks/done.md`: 本記録
+
+---
+
+## 2025-11-14 04:45: v0.3.0リリース準備完了・PR#3更新
+
+### 実施内容
+
+**目的**: v0.3.0のリリース準備を完了し、devブランチへのPRを更新
+
+### 完了タスク
+
+1. **Changelog作成**
+   - docs/changelog/v0.3.0.md: 詳細なリリースノート作成
+   - docs/changelog/index.md: バージョン一覧とロードマップ更新
+   - ユーザー向けドキュメントから絵文字削除
+
+2. **オプションページ改善**
+   - 独自デッキ編集画面の画像を3枚追加
+   - src/options/App.vue: deckEditFeatureに画像とアクセス方法追加
+
+3. **画像管理の整理**
+   - docs/usage/images/ を機能別サブフォルダに整理
+   - public/images/ に3つのシンボリックリンク追加
+   - public/images/README.md作成
+
+4. **スクリーンショット自動化**
+   - scripts/screenshots/deck-edit/capture-screenshots.js作成
+   - Products/QAタブのスクリーンショット重複問題修正
+
+5. **ドキュメント更新**
+   - docs/usage/deck-edit.md: 7つのスクリーンショット追加
+   - docs/usage/index.md: 画像パス更新、バージョン0.3.0に変更
+
+6. **タスク管理**
+   - tasks/todo.md: リリース準備タスクをチェック済みに更新
+
+### Git作業
+
+```bash
+git add -A
+git commit -m "docs: v0.3.0リリース準備完了"
+git push origin feature/v0.3.0-tests
+gh pr comment 3 --body "最新のコミット: v0.3.0リリース準備完了"
+```
+
+### テスト結果
+
+全テストPass（125 tests）
+- 単体テスト: 9 tests
+- 結合テスト: 17 tests
+- コンポーネントテスト: 51 passed / 3 skipped
+
+### ビルド＆デプロイ
+
+- npm run build: 成功
+- ./scripts/deploy.sh: WSL本番環境へデプロイ完了
+
+### PR状況
+
+- **PR#3**: https://github.com/TomoTom0/ygo-neuron-helper/pull/3
+- **Base**: dev
+- **Status**: OPEN
+- **コミット追加**: b8cdf68 "docs: v0.3.0リリース準備完了"
+
+### リリース準備状況
+
+- [x] バージョン更新（0.3.0）
+- [x] CHANGELOG作成
+- [x] ドキュメント整備
+- [x] オプションページ改善
+- [x] 画像管理整理
+- [x] テスト全Pass
+- [x] ビルド・デプロイ確認
+- [x] Git保存・プッシュ・PR更新
+- [ ] 最終動作確認（Chrome/Edge）← 次のステップ
+
+### 次のステップ
+
+1. Chrome/Edgeでの最終動作確認
+2. 問題なければPR#3をdevにマージ
+3. v0.3.0リリース
