@@ -54,8 +54,9 @@
   - [x] シャッフル機能はデモgifのみ表示（600px）
   - [x] デッキ画像作成は作成画像見本のみ表示（600px）
   - [x] 独自デッキ編集画面のomit設定項目追加
-  - [x] タブ構成（Omit and Usage / Deck Edit Settings / General）
+  - [x] タブ構成（Omit and Usage のみ、General / Deck Edit Settings は v-if=false で無効化）
   - [x] 画像の適切なサイズ調整（max-width: 600px）
+  - [x] 画像を左、テキストを右に配置（feature-content）
 - [x] **デッキ編集機能の詳細設定**
   - [x] デフォルト表示モード（リスト/グリッド）
   - [x] デフォルトソート順
@@ -67,6 +68,7 @@
   - [x] 設定の保存・読み込み機能
   - [x] トグルスイッチによる直感的なUI
   - [x] タブ切り替え機能
+  - [x] General/Deck Edit Settingsタブを一時的に非表示化（v-if="false"）
 - [ ] **将来的な拡張**
   - [ ] デフォルト値へのリセット機能
 
