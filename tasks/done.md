@@ -2359,3 +2359,37 @@ gh pr comment 3 --body "最新のコミット: v0.3.0リリース準備完了"
 - PR#3のレビュー結果確認
 - 問題なければdevにマージ
 - devからmainへのPR作成（この時点でブランチ保護が動作開始）
+
+---
+
+## [2025-11-14 07:05:45] CardQA & タブ切り替え改善
+
+### 実施内容
+
+1. **FAQ質問ボックスのwidth修正**
+   - `src/components/CardQA.vue` のCSS（line 262-268）
+   - `.qa-item` に `width: 100%` を追加
+
+2. **質問文のカードリンク確認**
+   - 既に実装済みであることを確認
+   - `parseCardLinks` が質問文に適用済み（lines 16-25）
+   - カード名クリックで `handleCardLinkClick` が動作する
+
+3. **タブ切り替え時の画像再レンダリング問題修正**
+   - `src/components/RightArea.vue` (lines 26, 30, 45)
+   - `v-if` を `v-show` に変更
+   - DOM要素の破棄・再生成を防止し、画像の再レンダリングを回避
+
+### 修正ファイル
+
+- `src/components/CardQA.vue`: CSS `.qa-item` width追加
+- `src/components/RightArea.vue`: `v-if` → `v-show` 変更
+
+### Build & Deploy
+
+```bash
+npm run build
+./scripts/deploy.sh
+```
+
+デプロイ先: `/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`
