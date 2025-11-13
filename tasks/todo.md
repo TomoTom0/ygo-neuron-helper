@@ -18,8 +18,8 @@
 
 ### 進行中: テスト実装 ⏳
 **テスト計画書**: tmp/wip/test-plan-v0.3.0.md
-**結果**: 74tests 全pass（単体40 + 結合34）
-**次**: コンポーネントテスト + card-animation
+**結果**: 125tests 全pass（単体47 + 結合34 + コンポーネント51-3skip）
+**次**: ドキュメント整備
 
 #### フェーズ1: 単体テスト（優先度：高）
 - [x] テスト環境セットアップ
@@ -37,10 +37,10 @@
   - [x] カード追加/削除/移動
   - [x] sortDisplayOrderForOfficial
   - [x] setDeckName
-- [ ] card-animation.test.ts（優先度：中）
-  - [ ] recordAllCardPositionsByUUID
-  - [ ] animateCardMoveByUUID
-  - [ ] アニメーション完了確認
+- [x] card-animation.test.ts（優先度：中）
+  - [x] recordAllCardPositionsByUUID
+  - [x] animateCardMoveByUUID
+  - [x] アニメーション完了確認
 
 #### フェーズ2: 結合テスト（優先度：中）
 - [x] card-detail-en.test.ts（英語版）（17tests ✅）
@@ -55,21 +55,29 @@
 - [x] deck-detail.test.ts（多言語対応・ciid/imgs確認） ✅
 
 #### フェーズ4: コンポーネントテスト（優先度：高）
-- [ ] Vue Test Utils + Vitestセットアップ
-- [ ] DeckCard.test.ts（重要度：最高）
-  - [ ] カード情報の表示確認
-  - [ ] ドラッグ開始イベント（@dragstart）
-  - [ ] ボタンクリックイベント（+1, -1, trash, toSide）
-  - [ ] プロパティバインディング確認
-- [ ] CardList.test.ts（重要度：高）
-  - [ ] リスト表示モード確認
-  - [ ] グリッド表示モード確認
-  - [ ] 表示切り替え機能
-  - [ ] カード一覧の表示確認
-- [ ] DeckSection.test.ts（重要度：中）
-  - [ ] ドロップゾーン動作確認
-  - [ ] カード枚数表示確認
-  - [ ] デッキタイプ別表示（main/extra/side）
+- [x] Vue Test Utils + Vitestセットアップ
+- [x] DeckCard.test.ts（重要度：最高）25tests ✅
+  - [x] カード情報の表示確認
+  - [x] ドラッグ開始イベント（@dragstart）
+  - [x] ボタンクリックイベント（+1, -1, trash, toSide）
+  - [x] プロパティバインディング確認
+- [x] CardList.test.ts（重要度：高）17tests ✅ (3skip)
+  - [x] リスト表示モード確認
+  - [x] グリッド表示モード確認
+  - [x] 表示切り替え機能
+  - [x] カード一覧の表示確認
+  - [ ] スクロールイベント（skip: happy-dom制約）
+- [x] DeckSection.test.ts（重要度：中）12tests ✅
+  - [x] ドロップゾーン動作確認
+  - [x] カード枚数表示確認
+  - [x] デッキタイプ別表示（main/extra/side）
+
+### 完了: テスト実装 ✅
+**v0.3.0テスト**: 125tests（単体47 + 結合34 + コンポーネント54-3skip）
+**実行方法**:
+- `npm test` - 全テスト（tsx）
+- `npm run test:components` - コンポーネントテスト（vitest）
+- `npm run test:vitest` - 全vitestテスト
 
 ### 必須タスク（リリースブロッカー）
 
