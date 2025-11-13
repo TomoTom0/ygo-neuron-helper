@@ -14,63 +14,13 @@
 ## 🚀 v0.3.0 リリースタスク（優先度：最高）
 
 **目標日**: 2025-11-17  
-**現在**: ドキュメント完了 ✅ 次フェーズ: オプションページ実装
+**現在**: テスト・ドキュメント完了 ✅ 次フェーズ: オプションページ実装
 
-### 進行中: テスト実装 ⏳
-**テスト計画書**: tmp/wip/test-plan-v0.3.0.md
-**結果**: 125tests 全pass（単体47 + 結合34 + コンポーネント51-3skip）
-**次**: ドキュメント整備
-
-#### フェーズ1: 単体テスト（優先度：高）
-- [x] テスト環境セットアップ
-  - [x] tests/unit/ディレクトリ作成
-  - [x] package.jsonにテストスクリプト追加
-- [x] language-detector.test.ts（9tests ✅）
-  - [x] #nowlanguage要素から検出
-  - [x] meta og:url/URLパラメータから検出
-  - [x] デフォルト値確認
-  - [x] 優先順位確認
-- [x] mapping-manager.test.ts（16tests ✅）
-  - [x] 日本語/英語マッピング
-  - [x] エラーハンドリング（フォールバック）
-- [x] deck-edit.test.ts（15tests ✅）
-  - [x] カード追加/削除/移動
-  - [x] sortDisplayOrderForOfficial
-  - [x] setDeckName
-- [x] card-animation.test.ts（優先度：中）
-  - [x] recordAllCardPositionsByUUID
-  - [x] animateCardMoveByUUID
-  - [x] アニメーション完了確認
-
-#### フェーズ2: 結合テスト（優先度：中）
-- [x] card-detail-en.test.ts（英語版）（17tests ✅）
-  - [x] 英語版パース成功確認
-  - [x] 属性・種族・エフェクトタイプのマッピング確認
-- [x] deck-detail-en.test.ts（英語版）（17tests ✅）
-  - [x] 英語版パース成功確認
-  - [x] カードタイプ・属性・種族マッピング確認
-
-#### フェーズ3: 既存テスト修正
-- [x] card-search.test.ts（ciid/imgs必須化対応） ✅
-- [x] deck-detail.test.ts（多言語対応・ciid/imgs確認） ✅
-
-#### フェーズ4: コンポーネントテスト（優先度：高）
-- [x] Vue Test Utils + Vitestセットアップ
-- [x] DeckCard.test.ts（重要度：最高）25tests ✅
-  - [x] カード情報の表示確認
-  - [x] ドラッグ開始イベント（@dragstart）
-  - [x] ボタンクリックイベント（+1, -1, trash, toSide）
-  - [x] プロパティバインディング確認
-- [x] CardList.test.ts（重要度：高）17tests ✅ (3skip)
-  - [x] リスト表示モード確認
-  - [x] グリッド表示モード確認
-  - [x] 表示切り替え機能
-  - [x] カード一覧の表示確認
-  - [ ] スクロールイベント（skip: happy-dom制約）
-- [x] DeckSection.test.ts（重要度：中）12tests ✅
-  - [x] ドロップゾーン動作確認
-  - [x] カード枚数表示確認
-  - [x] デッキタイプ別表示（main/extra/side）
+### 完了: カード枚数制限実装 ✅
+- [x] main/extra/side合計で同じカード3枚まで制限
+- [x] テスト追加（17tests → 17tests 全pass）
+- [x] ドキュメント更新（docs/usage/deck-edit.md）
+- [x] ビルド・デプロイ完了
 
 ### 完了: テスト実装 ✅
 **v0.3.0テスト**: 125tests（単体47 + 結合34 + コンポーネント54-3skip）
