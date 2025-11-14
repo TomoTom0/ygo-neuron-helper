@@ -5,7 +5,7 @@
 ### リリース状況
 - **v0.3.0**: ✅ リリース済み
 - **v0.3.1**: ✅ リリース済み
-- **v0.3.2**: 🔄 開発中（E2Eテストスイート修正完了）
+- **v0.3.2**: ✅ 開発完了（milestone.md要件全達成）
 
 ### 現在の進捗
 - **バージョン**: 0.3.2
@@ -14,8 +14,27 @@
 - **E2Eテスト**: ✅ 全9テスト合格
   - ファイル: `tmp/browser/e2e-full-suite-corrected.js`
   - テスト内容: DNOロード、デッキクリア、検索、追加、削除、枚数制限、ゴミ箱復元、エクストラ/サイドデッキ操作
+- **ビルド・デプロイ**: ✅ 完了
 
-### 完了した作業
+### 完了した作業（milestone.md v0.3.2要件）
+
+#### 1. ポップアップから独自デッキ編集画面に移動 ✅
+- [x] popup UIの実装完了（src/popup/index.ts）
+- [x] デッキ編集画面ボタンで `#/ytomo/edit` を開く
+
+#### 2. URLパラメータでdno指定 ✅
+- [x] `src/stores/deck-edit.ts`でURLパラメータから`dno`取得実装済み
+- [x] 例: `#/ytomo/edit?dno=8` でDNO 8のデッキを自動ロード
+
+#### 3. 拡張機能名の統一 ✅
+- [x] "YuGiOh Neuron **EXTension**" に統一（正しい英語スペル）
+- [x] 修正ファイル:
+  - src/popup/index.ts
+  - src/options/App.vue
+  - tasks/milestone.md
+  - docs/changelog/index.md
+  - docs/usage/README.md
+  - README.md
 
 #### E2Eテストスイート完全修正 ✅
 - [x] Test 1: DNOダイアログからデッキロード（MouseEvent対応）

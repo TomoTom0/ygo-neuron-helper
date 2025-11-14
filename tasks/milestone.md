@@ -66,7 +66,7 @@
 
 ポップアップやメニューから独自デッキ編集画面に移動できるようにする
 uspでdnoを指定するようにする
-拡張機能の名前を統一する(遊戯王NEXT, YuGiOh Neuron EXTention)
+拡張機能の名前を統一する(遊戯王NEXT, YuGiOh Neuron EXTension)
 
 
 ## Phase 4: 独自デッキ編集画面実装 v0.4.0
