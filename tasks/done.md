@@ -2359,3 +2359,246 @@ gh pr comment 3 --body "最新のコミット: v0.3.0リリース準備完了"
 - PR#3のレビュー結果確認
 - 問題なければdevにマージ
 - devからmainへのPR作成（この時点でブランチ保護が動作開始）
+
+---
+
+## [2025-11-14 07:05:45] CardQA & タブ切り替え改善
+
+### 実施内容
+
+1. **FAQ質問ボックスのwidth修正**
+   - `src/components/CardQA.vue` のCSS（line 262-268）
+   - `.qa-item` に `width: 100%` を追加
+
+2. **質問文のカードリンク確認**
+   - 既に実装済みであることを確認
+   - `parseCardLinks` が質問文に適用済み（lines 16-25）
+   - カード名クリックで `handleCardLinkClick` が動作する
+
+3. **タブ切り替え時の画像再レンダリング問題修正**
+   - `src/components/RightArea.vue` (lines 26, 30, 45)
+   - `v-if` を `v-show` に変更
+   - DOM要素の破棄・再生成を防止し、画像の再レンダリングを回避
+
+### 修正ファイル
+
+- `src/components/CardQA.vue`: CSS `.qa-item` width追加
+- `src/components/RightArea.vue`: `v-if` → `v-show` 変更
+
+### Build & Deploy
+
+```bash
+npm run build
+./scripts/deploy.sh
+```
+
+---
+
+## [2025-11-14 08:09:21] カード詳細UI改善とFAQ状態管理バグ修正
+
+### 実施内容
+
+#### 1. FAQ横スクロール問題の修正
+- **ファイル**: `src/components/CardQA.vue`
+- **問題**: FAQ項目にpaddingがあると横スクロールが発生
+- **解決策**: `box-sizing: border-box` を `.card-qa` と全ての子要素に適用
+  ```scss
+  .card-qa {
+    width: 100%;
+    box-sizing: border-box;
+    * {
+      box-sizing: border-box;
+    }
+  }
+  ```
+
+#### 2. Info補足情報のカードリンク対応
+- **ファイル**: `src/components/CardInfo.vue`
+- **機能追加**:
+  - `parseCardLinks()` メソッド実装（`{{カード名|cid}}` 形式のパース）
+  - `handleCardLinkClick()` メソッド実装（カードリンククリック処理）
+  - 補足情報（Detail）とペンデュラム補足情報（Pend. Detail）両方に適用
+- **挙動**: カード名クリック → カード詳細取得 → CardタブのInfoタブに遷移
+
+#### 3. ペンデュラム補足情報の表示追加
+- **ファイル**: `src/components/CardInfo.vue`, `src/components/CardDetail.vue`
+- **追加Props**: `pendulumSupplementInfo`, `pendulumSupplementDate`
+- **表示順序**:
+  1. Pend. Text（ペンデュラムテキスト）
+  2. Pend. Detail（ペンデュラム補足情報）
+  3. Card Text（カードテキスト）
+  4. Detail（補足情報）
+
+#### 4. QAタブの簡素化
+- **ファイル**: `src/components/CardQA.vue`
+- **変更内容**:
+  - 補足情報の表示を削除（Infoタブに統合）
+  - `.qa-header` のスタイル簡素化（border/background/padding削除）
+  - カード名を14pxのboldテキストとしてシンプルに表示
+
+#### 5. Info tab width問題の修正
+- **ファイル**: `src/components/CardInfo.vue`
+- **修正内容**:
+  - 全要素に `width: 100%`, `box-sizing: border-box` を追加
+  - `word-wrap: break-word`, `overflow-wrap: break-word` で長文対応
+  - カードテキスト、補足情報、ペンデュラム関連全てに適用
+  - 横スクロールを完全に防止
+
+#### 6. UIアニメーション追加
+- **FAQ展開/縮小アニメーション** (`src/components/CardQA.vue`):
+  ```vue
+  <transition name="qa-expand">
+  ```
+  - 展開: 0.3s ease-out (max-height, opacity, translateY)
+  - 縮小: 0.2s ease-in
+
+- **タブ切り替えアニメーション** (`src/components/RightArea.vue`):
+  ```scss
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  ```
+  - 0.2s ease-in-out
+
+- **カード情報更新アニメーション** (`src/components/CardInfo.vue`):
+  ```scss
+  @keyframes cardInfoFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  ```
+  - 0.25s ease-out
+
+- **ボタンホバー/アクティブエフェクト**:
+  - ホバー: `scale(1.05)` または `scale(1.08)`
+  - アクティブ: `scale(0.95)`
+
+#### 7. バージョン管理の修正
+- **ファイル**: `version.dat`
+- **修正**: 0.4.0 → 0.3.1
+- **理由**: milestone.mdに従い、v0.4.0はPhase 4の機能実装後
+- **コミット**: 67b6aa2
+  - 0.3.0ベース機能実装
+  - オプションページUI改善
+  - タブ構造変更
+
+#### 8. 🚨 重大なバグ修正: FAQ状態管理
+- **ファイル**: `src/components/CardQA.vue`
+- **問題**: FAQ状態がindex-basedで管理されていた
+  ```javascript
+  // 問題のあるコード
+  expandedQA.value[index] = true
+  qaAnswers.value[index] = faqDetail.answer
+  ```
+  - Card A FAQ[0] (faqId=100) を展開 → `qaAnswers[0] = "Card A answer"`
+  - Card Bに切り替え
+  - Card B FAQ[0] (faqId=300) が表示される → **Card Aの回答が表示される（バグ）**
+
+- **解決策**: faqId-basedに変更
+  ```javascript
+  // 修正後
+  const expandedQA = ref({})  // faqId → boolean
+  const loadingQA = ref({})   // faqId → boolean
+  const qaAnswers = ref({})   // faqId → answer text
+
+  const expandQA = async (faqId) => {
+    if (qaAnswers.value[faqId]) {
+      expandedQA.value[faqId] = true
+      return
+    }
+
+    loadingQA.value[faqId] = true
+    expandedQA.value[faqId] = true
+
+    try {
+      const faqDetail = await getFAQDetail(faqId)
+      qaAnswers.value[faqId] = faqDetail.answer
+    } finally {
+      loadingQA.value[faqId] = false
+    }
+  }
+  ```
+
+- **効果**:
+  - 異なるカードのFAQが回答を共有しない（faqId単位で管理）
+  - 同じfaqIdを持つFAQは展開状態を共有（ユーザー要件）
+
+- **影響範囲**:
+  - テンプレート: `v-if="!expandedQA[qa.faqId]"` に変更
+  - `expandQA(qa.faqId)`, `collapseQA(qa.faqId)` の引数変更
+  - 全ての状態管理がfaqIdベースに統一
+
+### API拡張
+
+#### card-search.ts
+- **ファイル**: `src/api/card-search.ts`
+- **変更**: `getCardDetail()` の引数を拡張
+  ```typescript
+  export async function getCardDetail(
+    cardOrId: CardInfo | string,  // CardInfo | cid文字列
+    lang?: string
+  ): Promise<CardDetail | null>
+  ```
+- **目的**: カードリンククリック時に cid のみから詳細情報を取得可能に
+
+### 修正ファイル一覧
+
+1. `src/components/CardQA.vue`
+   - box-sizing追加
+   - QAヘッダー簡素化
+   - FAQ展開/縮小アニメーション
+   - **faqId-based状態管理への変更**（重大バグ修正）
+
+2. `src/components/CardInfo.vue`
+   - parseCardLinks/handleCardLinkClick実装
+   - ペンデュラム補足情報props追加
+   - width/box-sizing/word-wrap修正
+   - カード情報更新アニメーション
+
+3. `src/components/CardDetail.vue`
+   - ペンデュラム補足情報propsの受け渡し
+
+4. `src/components/RightArea.vue`
+   - タブ切り替えアニメーション（既存のv-show活用）
+
+5. `src/api/card-search.ts`
+   - getCardDetailの引数拡張（CardInfo | string）
+
+6. `version.dat`
+   - バージョン修正（0.4.0 → 0.3.1）
+
+### Git コミット
+
+- **67b6aa2**: オプションページUI改善
+- **98d711d**: tasks: options page完了ステータス更新
+- **23e553d**: options: タブと画像追加
+- **b71950a**: fix: オプションページ画像表示改善
+- **93b65c3**: options: 画像と構造改善
+- **30c72d2**: **fix(CardQA): FAQ状態管理をindex-basedからfaqId-basedに変更**（重大バグ修正）
+
+### Build & Deploy
+
+```bash
+npm run build
+./scripts/deploy.sh
+```
+
+### 次のタスク
+
+- テスト追加（CardQA faqId-based状態管理、CardInfo parseCardLinks）
+- ドキュメント更新（カードリンク機能、FAQ挙動説明）
+
+デプロイ先: `/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`

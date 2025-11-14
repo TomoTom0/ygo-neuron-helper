@@ -73,6 +73,13 @@
   - [ ] デフォルト値へのリセット機能
 
 ### リリース準備
+- [x] **v0.3.1 UI/UX改善完了**
+  - [x] CardQA/CardInfoのUI改善（横スクロール修正、アニメーション追加）
+  - [x] FAQ状態管理バグ修正（index-based → faqId-based）
+  - [x] カードリンククリック機能実装
+  - [x] ペンデュラム補足情報表示対応
+  - [x] テスト追加（CardQA.test.ts、CardInfo.test.ts）
+  - [x] ドキュメント更新（docs/usage/deck-edit.md）
 - [ ] **バージョン更新**
   - [ ] version.dat → 0.3.0
   - [ ] manifest.json → 0.3.0
