@@ -6,6 +6,22 @@
 
 ---
 
+## 2025-11-14: 多言語対応E2Eテスト完了 - 10言語全て正常動作
+
+- **テストスクリプト**:
+  - `tmp/browser/e2e-multilang-test.js` (初回テスト、拡張ページ使用)
+  - `tmp/browser/e2e-lang-detection-official.js` (公式ページでの言語検出テスト)
+- **テスト結果**: ✅ 10/10言語で言語検出が正常動作
+  - 日本語 (ja) / 英語 (en) / アジア英語 (ae)
+  - 韓国語 (ko) / 中国語 (cn)
+  - ドイツ語 (de) / フランス語 (fr) / イタリア語 (it) / スペイン語 (es) / ポルトガル語 (pt)
+- **検出方法**:
+  - 主: `#nowlanguage`要素のテキスト内容（「日本語」「English」「한글」など）
+  - 副: URL searchParams (`request_locale`パラメータ)
+- **確認**: 公式ページ（card_search.action）で全言語が正しく検出される
+
+---
+
 ## 2025-11-14: 多言語対応ドキュメント修正完了
 
 - **修正ファイル**: `README.md`, `docs/dev/i18n.md`
