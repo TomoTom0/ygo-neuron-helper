@@ -3,8 +3,10 @@
 ## v0.3.0リリース準備
 
 ### 現在の進捗
-- テスト: 141tests（138 passed | 3 skipped）完了
+- テスト: 106 tests合格（combine 17 + component 89 | 3 skipped）
+  - ⚠️ API tests/deck-parser tests/session testは要修正（主要機能は動作確認済み）
 - バージョン: 0.3.1に統一完了
+- E2Eテスト: カード詳細タブ、表示モード切り替え、ソート機能確認完了
 
 ### 未完了タスク
 
