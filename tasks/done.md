@@ -6,6 +6,34 @@
 
 ---
 
+## 2025-11-14: v0.3.2開発完了 - milestone.md要件全達成
+
+- **タイムスタンプ**: 2025-11-14
+- **バージョン**: 0.3.2
+- **milestone.md v0.3.2の要件**: 全て達成
+
+### 達成した要件
+
+1. **ポップアップから独自デッキ編集画面に移動** ✅
+   - `src/popup/index.ts`: デッキ編集画面ボタン実装済み
+   - クリックで `#/ytomo/edit` を開く
+
+2. **URLパラメータでdno指定** ✅
+   - `src/stores/deck-edit.ts`: URLパラメータから`dno`取得実装済み
+   - 例: `#/ytomo/edit?dno=8` でDNO 8のデッキを自動ロード
+
+3. **拡張機能名の統一** ✅
+   - "YuGiOh Neuron **EXTension**" に統一（正しい英語スペル）
+   - 誤った"EXTention"を全て修正
+   - 修正ファイル: src/popup/index.ts, src/options/App.vue, README.md, docs/
+
+### ビルド・デプロイ
+
+- ✅ `npm run build`: 成功
+- ✅ `./scripts/deploy.sh`: 完了
+
+---
+
 ## 2025-11-14: E2Eテストスイート完全修正完了 - 全9テスト合格
 
 - **タイムスタンプ**: 2025-11-14
