@@ -12,6 +12,8 @@
 - Chrome Store宣伝画像をドキュメントに追加（3枚、約2.5MB）
 - Repository名変更対応（ygo-neuron-helper → YuGiOh-NEXT）
 - 連絡先情報追加、アイコン更新スクリプト作成
+- done.md簡潔化（2,762行→58行、98%削減）
+- **レビュー対応完了**: web_accessible_resources追加、スクリプト改善
 - **PR**: https://github.com/TomoTom0/YuGiOh-NEXT/pull/6
 
 ---
