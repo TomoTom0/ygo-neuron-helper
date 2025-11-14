@@ -6,6 +6,30 @@
 
 ---
 
+## 2025-11-14: PR #8レビュー対応完了 - webpack修正とCSS変数導入
+
+- **PR #8レビュー指摘2件に対応**:
+  1. CRITICAL: webpack.config.jsにpopup.cssコピー設定追加（ビルド後にCSSが欠落する致命的バグを修正）
+  2. MEDIUM: CSSカスタムプロパティ（CSS変数）導入（保守性・拡張性向上）
+- **CSS変数定義**: 色・サイズ・影などを`:root`で一元管理、ダークモード対応の基盤整備
+- **コミット**: 50c3c02
+
+---
+
+## 2025-11-14: PR #8作成 - PR #7レビュー対応とdevブランチ保護強化
+
+- **PR #7レビュー指摘2件に対応**:
+  1. popup UI CSS分離: インラインスタイル廃止、CSSファイル分離実施
+  2. メールアドレス不整合: PR説明文のタイポと説明
+- **main/devブランチ保護強化**:
+  - `enforce_admins: false → true` に変更
+  - `required_pull_request_reviews`追加（PR経由必須化）
+  - 管理者も含めて直接push完全禁止
+- **devブランチ巻き戻し**: 誤った直接pushを修正し、正しくPR経由で対応
+- **PR**: https://github.com/TomoTom0/YuGiOh-NEXT/pull/8
+
+---
+
 ## 2025-11-14: PR #7作成 - v0.3.1リリース準備 (dev → main)
 
 - PR #6の内容をmainブランチへマージ準備
