@@ -586,3 +586,37 @@ Passed: 6/6 ✅
 - バージョン番号更新（0.3.2 → 0.4.0-alpha）
 - Phase 2への移行準備
 
+
+## v0.3.6 - ciid画像選択機能完成とバグ修正 (2025-11-15)
+
+### 実装内容
+
+1. **ciid画像選択機能**
+   - CardInfo.vueに画像選択ダイアログを実装
+   - MDIアイコン（mdiImageMultiple）を使用
+   - テーマカラー適用（--theme-gradient）
+   - 画像選択時のアニメーション追加
+   - DeckCard.vueで選択画像の反映
+
+2. **ciid関連の重大バグ修正**
+   - `rebuildDisplayOrder()`でciidを誤ってインデックス値で初期化していた問題を修正
+   - `moveInDisplayOrder()`でカード移動時にciidを誤って再計算していた問題を修正
+   - `removeFromDisplayOrder()`でカード削除時にciidを誤って再計算していた問題を修正
+   - `reorderInDisplayOrder()`で並び替え時にciidを誤って再計算していた問題を修正
+   - DeckSection.vueで`ciid=undefined`の場合のフォールバック処理追加
+
+### 修正ファイル
+
+- `src/components/CardInfo.vue`（画像選択UI、MDIアイコン、アニメーション）
+- `src/components/DeckCard.vue`（info sectionでのselectedCard使用、画像変更アニメーション）
+- `src/components/DeckSection.vue`（ciid undefinedのフォールバック）
+- `src/stores/deck-edit.ts`（ciid再計算バグの全修正）
+
+### コミット
+
+- `fix: ciid画像選択機能実装と重大バグ修正完了`
+
+### 影響
+
+- **修正前**: カード移動・削除・並び替えのたびにciidが0,1,2...とインデックスで上書きされ、カード画像が表示されなくなっていた
+- **修正後**: ciidは画像IDとして正しく保持され、カード操作後も選択した画像が保持される
