@@ -1302,3 +1302,107 @@ npm run build && ./scripts/deploy.sh
 - [ ] 手動テストで動作確認（ログイン必要）
 - [ ] 複数のciidを持つカードでの検証
 - [ ] エクストラデッキ・サイドデッキでの動作確認
+
+---
+
+## 2025-11-17: v0.4.0 Phase 1基盤整備完了 - 設定ストア・USP実装
+
+- **タイムスタンプ**: 2025-11-17 21:00
+- **バージョン**: 0.3.7（Phase 1基盤完成）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+#### 1. 設定ストアの作成
+
+**ファイル**: `src/stores/settings.ts`, `src/types/settings.ts`
+
+**機能**:
+- ✅ 画像サイズ設定（4段階: small/medium/large/xlarge）
+  - デッキ編集用（deckEditCardSize）
+  - カード詳細パネル用（infoCardSize）
+  - グリッド表示用（gridCardSize）
+  - リスト表示用（listCardSize）
+- ✅ テーマ設定（3種: light/dark/system）
+  - システムテーマ自動検出（prefers-color-scheme）
+- ✅ 言語設定（auto + 10言語）
+  - ja, en, ko, ae, cn, de, fr, it, es, pt
+  - 自動検出モード対応
+- ✅ chrome.storage.local永続化
+  - loadSettings: 起動時に設定読み込み
+  - saveSettings: 変更時に自動保存
+- ✅ 設定API
+  - setDeckEditCardSize/setInfoCardSize/setGridCardSize/setListCardSize
+  - setTheme（テーマ変更）
+  - setLanguage（言語変更）
+  - effectiveTheme（systemの場合は実テーマを返す）
+  - effectiveLanguage（autoの場合は検出言語を返す）
+- ✅ リアルタイム適用
+  - applyTheme: CSS変数でテーマ適用
+  - applyCardSize: CSS変数でサイズ適用
+
+#### 2. USP（URL State Parameters）実装
+
+**ファイル**: `src/utils/url-state.ts`
+
+**機能**:
+- ✅ URLパラメータ定義
+  - `dno`: デッキ番号
+  - `mode`: 表示モード（list/grid）
+  - `sort`: ソート順（official/name-asc/name-desc/level-asc等）
+  - `tab`: アクティブタブ（search/card/deck）
+  - `ctab`: カードタブ（info/qa/related/products）
+  - `detail`: 詳細表示フラグ（0/1）
+  - `size`: 画像サイズ
+  - `theme`: テーマ
+  - `lang`: 言語
+- ✅ URLパラメータ操作
+  - getParams: 現在のURLパラメータ取得（ハッシュルーティング対応）
+  - setParams: パラメータ更新（履歴に追加せず置き換え）
+- ✅ UI状態の双方向同期
+  - syncUIStateToURL: 状態変更時にURL更新
+  - restoreUIStateFromURL: URLからUI状態復元
+- ✅ 設定の双方向同期
+  - syncSettingsToURL: 設定をURLに反映
+  - restoreSettingsFromURL: URLから設定復元
+- ✅ デッキ番号管理
+  - getDno: URLからデッキ番号取得
+  - setDno: デッキ番号をURLに設定
+
+#### 3. 型定義の整備
+
+**ファイル**: `src/types/settings.ts`
+
+- CardSize: 4段階（small/medium/large/xlarge）
+- Theme: 3種（light/dark/system）
+- Language: auto + 10言語
+- DisplayMode: list/grid
+- SortOrder: 8種類のソート順
+- CardTab: info/qa/related/products
+- ActiveTab: search/card/deck
+- AppSettings: アプリ全体設定のインターフェース
+- FeatureSettings: 機能ON/OFF設定
+- DeckEditUIState: デッキ編集画面のUI状態
+
+### 統合状況
+
+- ✅ `src/stores/deck-edit.ts`でURLStateManager使用
+- ✅ `src/stores/deck-edit.ts`でuseSettingsStore使用
+- ✅ テーマとカードサイズの動的適用実装済み
+
+### 意義
+
+**Phase 1完了条件を達成**:
+- ✅ USP（URL State Parameters）による状態管理
+- ✅ 画像サイズ4段階切り替え
+- ✅ カラーテーマ3種（dark/light/system）
+- ✅ 言語切り替え（10言語 + auto）
+
+これにより：
+1. ブックマーク可能なURL（設定含む全状態を保持）
+2. リロード時の状態復元
+3. URL共有による設定共有
+4. ユーザー設定の永続化
+
+が実現された。
+
