@@ -1,3 +1,52 @@
+## 2025-11-17: PNG画像へのデッキ情報埋め込み機能実装
+
+- **タイムスタンプ**: 2025-11-17 23:30
+- **バージョン**: 0.3.9（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**PNG画像埋め込み・抽出機能**
+- `src/utils/png-metadata.ts`: PNG tEXtチャンク操作
+  - `embedDeckInfoToPNG()`: デッキ情報をPNG画像のメタデータに埋め込み
+    - PNGバイナリ操作（IENDチャンク前にtEXtチャンクを挿入）
+    - CRC32計算（PNG仕様準拠）
+    - デッキ情報を簡略化してJSON形式で保存
+  - `extractDeckInfoFromPNG()`: PNG画像からデッキ情報を抽出
+    - tEXtチャンクを走査
+    - "DeckInfo"キーのメタデータを取得
+  - 画像の見た目に影響しない標準的な方法
+
+**エクスポート機能拡張**
+- `src/utils/deck-export.ts`: PNG形式エクスポート
+  - `exportToPNG()`: デッキ画像生成 + メタデータ埋め込み
+  - `downloadDeckAsPNG()`: PNG画像をダウンロード
+  - PNGExportOptionsインターフェース（scale, color, includeQR, cgid）
+  - サイドデッキ除外オプション対応
+
+**インポート機能拡張**
+- `src/utils/deck-import.ts`: PNG形式インポート
+  - `importFromPNG()`: PNG画像からデッキ情報を抽出してDeckInfoに変換
+  - `importDeckFromFile()`: PNG形式（.png）に対応
+  - メタデータなしPNGのエラーハンドリング
+
+### テスト
+- `tmp/test-png-metadata-simple.ts`: 基本的な埋め込み・抽出テスト
+  - ✅ 最小限のPNGでテスト成功
+  - ✅ データの整合性検証成功
+
+### 技術的な課題と解決
+- **課題**: ループ条件のバグでIENDチャンクを読めない
+- **解決**: `offset < pngData.length - 12` → `offset + 12 <= pngData.length` に修正
+
+### 次のステップ
+- [ ] ExportDialogにPNG形式を追加
+- [ ] ブラウザE2Eテスト（実際のデッキ画像で検証）
+- [ ] ユニットテスト作成
+- [ ] バージョン更新とデプロイ
+
+---
+
 ## 2025-11-17: デッキインポート機能実装
 
 - **タイムスタンプ**: 2025-11-17 22:45

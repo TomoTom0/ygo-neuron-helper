@@ -1,3 +1,53 @@
 # 作業中のタスク
 
-現在作業中のタスクはありません。
+## v0.3.9: PNG画像へのデッキ情報埋め込み機能（2025-11-17）
+
+### 概要
+デッキ画像（PNG）にデッキ情報（section, cid, ciid, quantity）を埋め込み、
+画像からデッキをインポートできる機能を追加する。
+
+### 技術方式
+- **PNGメタデータ（tEXtチャンク）方式** を採用
+- ブラウザ環境でバイナリ操作を行い、PNGのIENDチャンク前にtEXtチャンクを挿入
+- 画像の見た目に影響しない標準的な方法
+
+### 実装計画
+
+#### 1. PNG埋め込み用ユーティリティ (`src/utils/png-metadata.ts`)
+- [ ] `embedDeckInfoToPNG(pngBlob: Blob, deckInfo: DeckInfo): Promise<Blob>`
+  - PNGバイナリにtEXtチャンクを追加
+  - キー: "DeckInfo"
+  - 値: JSON.stringify({main: [...], extra: [...], side: [...]})
+- [ ] `extractDeckInfoFromPNG(pngBlob: Blob): Promise<DeckInfo | null>`
+  - PNGバイナリからtEXtチャンクを抽出
+  - JSON.parseでデッキ情報を復元
+
+#### 2. エクスポート機能拡張 (`src/utils/deck-export.ts`)
+- [ ] `exportToPNG(deckInfo: DeckInfo, options): Promise<Blob>`
+  - createDeckRecipeImage を呼び出して画像生成
+  - embedDeckInfoToPNG でメタデータ埋め込み
+- [ ] `downloadDeckAsPNG(deckInfo, filename, options)`
+  - PNG画像をダウンロード
+
+#### 3. インポート機能拡張 (`src/utils/deck-import.ts`)
+- [ ] `importFromPNG(file: File): Promise<ImportResult>`
+  - extractDeckInfoFromPNG でメタデータ抽出
+  - 抽出失敗時はエラーメッセージ
+- [ ] `importDeckFromFile` 修正
+  - PNG形式（.png）に対応
+
+#### 4. テスト
+- [ ] ユニットテスト作成
+- [ ] E2Eテスト（エクスポート→インポート）
+
+### 完了条件
+- [x] PNG埋め込みユーティリティ実装
+- [x] エクスポート機能でPNG形式に対応
+- [x] インポート機能でPNG形式に対応
+- [x] テスト作成と実行
+
+### 残タスク
+- [ ] ExportDialogにPNG形式を追加
+- [ ] ImportDialogでPNG形式に対応（画像プレビュー表示）
+- [ ] ブラウザE2Eテスト（実際のデッキ画像で検証）
+- [ ] バージョン更新とコミット
