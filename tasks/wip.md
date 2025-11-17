@@ -27,7 +27,12 @@
   - `reorderCard` にrequestAnimationFrame追加（タイミング修正）
   - 画像の`key`属性をUUIDベースに変更（fadeInアニメーション防止）
 - [x] ビルド・デプロイ（不具合修正）
-- [ ] 動作確認（並び替え・Shuffle・Sort・画像の白化含む）
+- [x] アニメーション不具合の根本原因修正
+  - `moveCard`と`moveCardWithPosition`で移動元セクションを追加
+  - `new Set([to])` → `new Set([from, to])`
+  - 移動元のカードが詰まるアニメーションを表示
+- [x] ビルド・デプロイ（根本修正）
+- [ ] 動作確認（並び替え・移動・画像の白化含む）
 
 #### 完了条件
 - [x] セクション背景色とドロップ成功が一致
