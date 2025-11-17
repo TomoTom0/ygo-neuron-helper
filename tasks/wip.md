@@ -23,7 +23,11 @@
   - `recordAllCardPositionsByUUID()` でFirst位置を記録
   - `animateCardMoveByUUID()` でアニメーション実行
 - [x] ビルド・デプロイ（アニメーション対応）
-- [ ] 動作確認（並び替え・Shuffle・Sort含む）
+- [x] アニメーション不具合の修正
+  - `reorderCard` にrequestAnimationFrame追加（タイミング修正）
+  - 画像の`key`属性をUUIDベースに変更（fadeInアニメーション防止）
+- [x] ビルド・デプロイ（不具合修正）
+- [ ] 動作確認（並び替え・Shuffle・Sort・画像の白化含む）
 
 #### 完了条件
 - [x] セクション背景色とドロップ成功が一致
@@ -31,6 +35,7 @@
 - [x] アニメーション中のカードが最前面表示
 - [x] 同じセクション内の並び替えが正しく動作
 - [x] ボタン押下時（Shuffle/Sort）のアニメーション動作
+- [x] 画像のfadeInアニメーション防止（UUID key使用）
 
 ---
 
