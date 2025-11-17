@@ -1,8 +1,9 @@
-## 2025-11-18: デッキインポート/エクスポート全形式でenc対応完了
+## 2025-11-18: デッキインポート/エクスポート全形式でenc対応完了（最終版）
 
-- **タイムスタンプ**: 2025-11-18 01:30
+- **タイムスタンプ**: 2025-11-18 02:00
 - **バージョン**: 0.3.9
 - **ブランチ**: `feature/v0.4.0-foundation`
+- **コミット**: `30342cd` (ImportDialog), `ec44a32` (CSV/TXT enc対応), `51e3f23` (PNG enc対応)
 
 ### 実装内容
 
@@ -10,34 +11,51 @@
 - `downloadDeckRecipeImage.ts`: PNG画像に自動的にメタデータ埋め込み
 - ファイル名拡張子: `.jpg` → `.png`
 - `png-metadata.ts`: SimpleDeckInfo に `enc` フィールド追加
+  - `embedDeckInfoToPNG()`: デッキ情報をPNG tEXtチャンクに埋め込み
+  - `extractDeckInfoFromPNG()`: PNG tEXtチャンクからデッキ情報を抽出
 
 **CSV/TXT形式でもenc対応**
 - `deck-export.ts`: エクスポート時に `enc` フィールドを含める
   - CSV形式: `section,name,cid,ciid,enc,quantity`
   - TXT形式: `2x カード名 (cid:ciid:enc)`
 - `deck-import.ts`: インポート時に `enc` フィールドを読み込み
-  - `enc` があれば `imgs` 配列に設定
+  - `enc` があれば `imgs` 配列に設定: `[{ ciid, imgHash }]`
   - これによりカード画像が正しく表示される
+
+**ImportDialogでPNG画像受付**
+- `ImportDialog.vue`: accept属性に `.png` を追加
+  - `accept=".csv,.txt,.png"`
 
 ### 修正内容
 
-**問題点**: CSV/TXTからインポートした際、カード画像が裏面になっていた
+**問題1**: CSV/TXTからインポートした際、カード画像が裏面になっていた
 - 原因: `imgs` 配列が空配列のまま作成されていた
 - 解決: `enc` フィールドを追加し、`imgs` 配列に `{ ciid, imgHash }` を設定
 
+**問題2**: ImportDialogでPNG画像を選択できなかった
+- 原因: accept属性に `.png` が含まれていなかった
+- 解決: accept属性に `.png` を追加
+
 **対応ファイル**:
+- `src/utils/png-metadata.ts`: PNG tEXtチャンク操作（NEW）
 - `src/utils/deck-import.ts`:
   - `ImportRow` に `enc` フィールド追加
   - CSV/TXTパーサーで `enc` 読み込み対応
+  - PNG画像からのインポート対応（`importFromPNG()`）
   - `convertRowsToDeckInfo()` で `imgs` 配列に設定
 - `src/utils/deck-export.ts`:
   - `ExportRow` に `enc` フィールド追加
   - CSV/TXTエクスポート時に `enc` 出力
+- `src/components/ImportDialog.vue`:
+  - accept属性に `.png` 追加
+- `src/content/deck-recipe/downloadDeckRecipeImage.ts`:
+  - PNG画像ダウンロード時に自動的にメタデータ埋め込み
 
 ### 削除した不要な実装
-- ExportDialog.vue: PNG形式選択（不要だった）
-- ImportDialog.vue: PNG形式受付（不要だった）
-- deck-export.ts: exportToPNG(), downloadDeckAsPNG()（不要だった）
+
+当初の誤解で実装したが、後に不要と判明して削除したもの：
+- ExportDialog.vue: PNG形式選択（デッキ画像作成ダイアログと重複）
+- deck-export.ts: exportToPNG(), downloadDeckAsPNG()（同上）
 
 ### 正しい使い方
 
@@ -52,15 +70,29 @@
 4. **自動的にデッキ情報（cid, ciid, enc, quantity）が埋め込まれたPNG画像**がダウンロード
 
 **インポート**:
-1. Import Deck メニューから CSV/TXT/PNG を選択
-2. **enc フィールドが含まれている場合、カード画像が正しく表示される**
-3. enc がない場合、インポート直後は裏面表示（save/load後は表示）
+1. Import Deck メニューをクリック
+2. **CSV/TXT/PNG いずれかのファイルを選択**
+3. **enc フィールドが含まれている場合、カード画像が正しく表示される**
+4. enc がない場合、インポート直後は裏面表示（save/load後は表示）
 
 ### テスト結果
 - ✅ enc フィールドが正しくPNG画像に埋め込まれることを確認
 - ✅ enc フィールドが正しく抽出されることを確認
 - ✅ ciid 違いのカードでも正しい imgHash が設定されることを確認
 - ✅ CSV/TXT形式でも enc フィールドが正しくエクスポート/インポートされる
+- ✅ ImportDialogでPNG画像を選択できることを確認
+
+### 技術詳細
+
+**PNG tEXtチャンク仕様**:
+- キー: "DeckInfo"
+- 値: SimpleDeckInfo の JSON文字列
+- CRC32チェックサム: PNG仕様準拠
+- 挿入位置: IENDチャンクの前
+
+**後方互換性**:
+- enc フィールドがない旧形式のCSV/TXTでもインポート可能
+- ただし、カード画像は裏面表示（save/load後は表示）
 
 ---
 
