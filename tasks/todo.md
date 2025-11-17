@@ -37,6 +37,67 @@
 
 ---
 
+### 1. UIデザイン改善（優先度：高）
+
+#### 1.1 ダイアログのデザイン統一
+- [ ] オプション画面（`src/options/App.vue`）のデザイン改善
+  - モダンなカード型レイアウトに変更
+  - CSS変数の完全適用（ダークモード対応）
+  - フォント、余白、影の調整
+- [ ] エクスポートダイアログ（`src/components/ExportDialog.vue`）のデザイン改善
+  - グラデーション効果の追加
+  - アニメーション効果の追加
+  - アイコンとボタンのスタイル統一
+- [ ] デッキ画像作成ダイアログ（`src/content/deck-recipe/imageDialog.ts`）のデザイン改善
+  - カラーパレットの統一
+  - モダンなフォームスタイル
+  - レスポンシブ対応
+
+#### 1.2 デザインシステムの確立
+- [ ] 共通のダイアログコンポーネント作成（`src/components/BaseDialog.vue`）
+  - ヘッダー、ボディ、フッターの統一レイアウト
+  - アニメーション（フェードイン/スライドイン）
+  - 閉じるボタンの統一スタイル
+- [ ] カラーパレットの定義（`src/styles/colors.css`）
+  - プライマリカラー、セカンダリカラー
+  - ライト/ダークモードの色定義
+  - グラデーション定義
+
+---
+
+### 2. デッキデータのエクスポート/インポート機能（優先度：高）
+
+#### 2.1 エクスポート機能実装
+- [x] CSV形式エクスポート関数（`src/utils/deck-export.ts`）
+  - 常にname列を含む
+  - フォーマット: `section,name,cid,ciid,quantity`
+  - オプション: Include Side Deck（デフォルト: true）
+- [x] TXT形式エクスポート関数
+  - 人間が読みやすい形式
+  - 例: `2x 灰流うらら (12950:1)`
+- [x] エクスポートダイアログUI（`src/components/ExportDialog.vue`）
+  - フォーマット選択（CSV/TXT）
+  - Include Side Deckチェックボックス
+  - ファイル名入力（デフォルト: `deck-{dno}.csv`）
+- [x] DeckEditTopBarメニューにエクスポート項目追加
+  - "Export Deck"
+
+#### 2.2 テスト
+- [ ] エクスポート関数のユニットテスト
+  - 複数ciid対応
+  - サイドデッキ含む/含まない
+- [ ] インポートパーサーのユニットテスト
+  - 柔軟な形式対応（name省略、ciid省略、複数行）
+  - エラーハンドリング（不正な形式）
+- [ ] E2Eテスト（エクスポート→インポート）
+
+#### 2.3 サンプルファイル
+- [x] `tmp/export-samples/deck-with-name.csv`
+- [x] `tmp/export-samples/deck-with-name.txt`
+- [x] `tmp/export-samples/README.md`
+
+---
+
 ### 3. 画像サイズ切り替え実装（優先度：高）
 
 > **Note**: 基盤実装完了（setProperty方式でCSS変数適用）→ `tasks/done.md` 参照
