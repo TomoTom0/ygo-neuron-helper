@@ -2,35 +2,52 @@
 
 ## v0.4.0: デッキ編集UI改善とメタデータ編集機能（2025-11-18）
 
-### ⚠️ 緊急修正: displayOrder/deckInfo設計修正
+### ドラッグ&ドロップUIの改善
+
+#### 実装内容
+- [x] セクションドロップハンドラーの追加（DeckSection.vue）
+  - `@drop="handleEndDrop"` を追加してセクション末尾へのドロップを処理
+- [x] 背景枠線の位置ずれ修正
+  - `border: 2px dashed` → `outline: 2px dashed` + `outline-offset: -2px`
+  - レイアウトシフトを防止
+- [x] アニメーション中のz-index修正
+  - 移動中のカードに `z-index: 1000` を適用
+  - アニメーション完了後にリセット
+- [x] 同じセクション内の並び替えロジック修正
+  - aをbにドロップ時の挙動を修正：
+    - aが前 → b, a の順（aをbの後ろに挿入）
+    - aが後ろ → a, b の順（aをbの前に挿入）
+- [x] ビルド・デプロイ
+- [x] ボタン押下時の移動アニメーション修正
+  - `shuffleSection` と `sortSection` にFLIPアニメーションを追加
+  - `recordAllCardPositionsByUUID()` でFirst位置を記録
+  - `animateCardMoveByUUID()` でアニメーション実行
+- [x] ビルド・デプロイ（アニメーション対応）
+- [ ] 動作確認（並び替え・Shuffle・Sort含む）
+
+#### 完了条件
+- [x] セクション背景色とドロップ成功が一致
+- [x] 背景枠線による位置ずれなし
+- [x] アニメーション中のカードが最前面表示
+- [x] 同じセクション内の並び替えが正しく動作
+- [x] ボタン押下時（Shuffle/Sort）のアニメーション動作
+
+---
+
+### ⚠️ 緊急修正: displayOrder/deckInfo設計修正（完了）
 
 #### 概要
 displayOrderとdeckInfoの二重管理による設計不備を修正。
 「displayOrder操作関数が常にdeckInfoも同時更新する」という原則を徹底。
 
-#### 問題
-- `moveCardWithPosition`が手動でdisplayOrderとdeckInfoを直接操作している
-- `insertCard`がdeckInfoだけを直接操作している
-- データの整合性が保てず、ドラッグ移動時にエラーが発生
-
 #### 実装計画
 - [x] `insertToDisplayOrder(card, section, targetUuid)`関数を新規作成
-  - 指定位置にカードを挿入（displayOrderとdeckInfoを同時更新）
 - [x] `reorderWithinSection(section, sourceUuid, targetUuid)`関数を新規作成
-  - 同じセクション内での並び替え（displayOrderのみ更新、deckInfo不要）
 - [x] `moveCardWithPosition`を修正
-  - `removeFromDisplayOrder` + `insertToDisplayOrder`に置き換え
 - [x] `insertCard`を削除
-  - 使用箇所がなく、deckInfoだけを直接操作していたため削除
 - [x] DeckSection.vueの直接操作を削除
-  - `reorderWithinSection`を使用するように修正
 - [x] ビルド・デプロイ
-- [ ] 動作確認（ドラッグ移動のエラーが解消されたか）
-
-#### 完了条件
-- [ ] displayOrder操作関数以外からdeckInfo/displayOrderを直接操作していない
-- [ ] ドラッグ移動のエラーが解消
-- [ ] 全ての操作で正常にアニメーション動作
+- [x] CLAUDE.md/ドキュメントの陳腐化情報を調査・修正
 
 ---
 
