@@ -43,7 +43,98 @@
   - DeckSection.vueで`canDropToSection()`関数を追加
   - 移動可能な場合のみ背景色を表示
 - [x] ビルド・デプロイ（背景色表示修正）
-- [ ] 動作確認（並び替え・移動・最後の1枚・背景色表示含む）
+- [x] 原因判明：ビルドが古かった（11月16日のdist、今日は18日）
+- [x] 再ビルド・デプロイ
+- [x] 動作確認（並び替え・移動・最後の1枚・背景色表示含む）
+
+#### 修正完了した問題（2025-11-18）
+
+- ✅ ボタン押下時に間違ったカードが移動する問題
+- ✅ extra配置不可カードのドラッグ時の背景色表示（部分修正）
+
+#### 現在作業中の問題（2025-11-18）
+
+1. **ボタン押下時のちらつき**
+   - 同じセクション内の無関係なカードがちらつく
+   - 原因：カード移動時に他カードが詰まるアニメーションが表示される（これは正常動作の可能性）
+
+2. **ボタン押下時に間違ったカードが移動** ⚠️ 重大 → ✅ **修正完了・動作確認済み**
+   - 同じcidの別カードが移動して、押下したカード自体が移動しない
+   - **根本原因1**: DeckCard.vueの画像keyに`uuid || ${cardId}-${ciid}`というfallbackがあった
+     - 空文字列のuuidはfalsyなので、同じ(cardId, ciid)のカードが同じkeyを持ち、Vueが同一コンポーネントと認識
+     - `this.uuid`が間違った値を参照していた
+   - **修正1**:
+     1. DeckCard.vueのuuid propsを`required: true`に変更
+     2. 画像keyのfallbackを削除（`:key="uuid"`のみ）
+     3. CardList.vueで各カードにcrypto.randomUUID()を生成（computed）
+     4. CardInfo.vueでcrypto.randomUUID()を生成（computed）
+   - **根本原因2**: deck-edit.tsのgenerateUUID()が古い実装のまま
+     - `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` を使用
+     - crypto.randomUUID()ではなかった
+   - **修正2**: generateUUID()をcrypto.randomUUID()に変更
+   - **根本原因3**: moveCardFromSide()がuuidパラメータを受け取っていない
+     - DeckCard.handleTopRight() → moveCardFromSide() → moveCard() の経路でuuidが失われる
+     - moveInDisplayOrder()でuuid: undefinedとなり、lastIndexOf()のfallbackが発動
+   - **修正3**: moveCardFromSide(card, uuid?)にuuidパラメータを追加、moveCard()に渡す
+   - ビルド・デプロイ完了（3回）
+   - **テストスクリプト作成**: `tmp/wip/test-edit-uuid-fix.js`, `tmp/wip/verify-uuid-fix.js`
+     - edit画面でのUUID修正動作確認用
+     - tests/browser/test-buttons.jsを参考に作成
+     - DOM要素のdata属性のみでアクセス（Vue appやPiniaストアに直接アクセスしない）
+     - 同じcid,ciidのカード2枚をmain→sideに移動してUUID動作確認
+   - **動作確認完了**（2025-11-18）:
+     - cid=12950のカード3枚（ciid=2が1枚、ciid=1が2枚）がそれぞれ異なるUUIDを持つことを確認
+     - UUID指定でカード移動が正しく動作することを確認
+     - 移動したカードのUUIDがsideセクションに存在することを確認
+
+3. **extra配置不可カードのドラッグ時の背景色** → ✅ **修正完了**
+   - extraセクションに配置できないカードをドラッグ時にextraセクション上で背景色が表示される
+   - **根本原因1**: searchからの移動時、mainとextraを区別せずに常にtrueを返していた
+     - 207-209行目: `if (to === 'main' || to === 'extra') return true`
+     - extraデッキカードかどうかのチェックが行われていなかった
+   - **修正1** (deck-edit.ts canMoveCard関数を新規追加):
+     - searchからmainへの移動: extraデッキカード（fusion/synchro/xyz/link）は拒否
+     - searchからextraへの移動: extraデッキカードのみ許可
+     - `card.cardType === 'monster' && card.types`で型ガード
+     - ストアにエクスポートしてDeckSection/DeckCardの両方から使用可能に
+   - **修正2** (DeckSection.vue):
+     - `canDropToSection()`を`deckStore.canMoveCard()`を使う形に簡略化
+     - `handleEndDrop()`冒頭で`canDropToSection()`をチェック、移動不可なら早期return
+   - **修正3** (DeckCard.vue handleDrop):
+     - カード上にドロップする場合も`deckStore.canMoveCard()`でチェック
+     - 移動不可の場合は早期return
+   - ビルド・デプロイ完了（2025-11-18 07:05）
+
+4. **ドラッグ時の他カード上での色変化が消失** → ✅ **修正完了**
+   - カードをドラッグ移動時に他のカードの上にいるときに、そのカードの色が変わらない
+   - **根本原因**: handleDragOverで`event.preventDefault()`を呼んでいなかった
+   - **修正1** (DeckCard.vue handleDragOver):
+     - `event.preventDefault()`と`event.stopPropagation()`を追加
+     - `isDragOver` ref変数を追加してdrag-over状態を管理
+     - 自分自身の上ではハイライトしない（同じcardIdとsectionType）
+   - **修正2** (DeckCard.vue handleDragLeave):
+     - `event.relatedTarget`で子要素への移動を判別
+     - 本当に離れた時のみハイライト解除
+   - **修正3** (DeckCard.vue CSS):
+     - `.drag-over`クラスで青いoutlineと半透明背景を表示
+   - ビルド・デプロイ完了（2025-11-18 07:15）
+
+5. **セクション辺付近でのドロップ判定失敗** → ✅ **修正完了**
+   - 完全にカードがセクション内にあっても、セクションの辺に近い位置だと移動が判定されない
+   - **根本原因**: カードの`handleDragOver`で`event.preventDefault()`を呼んでいなかった
+   - **修正**: DeckCard.vue handleDragOverに`event.preventDefault()`を追加
+   - これにより、カード上でもドロップが有効になり、セクション辺付近でも正常に判定される
+   - ビルド・デプロイ完了（2025-11-18 07:15）
+
+6. **検索入力欄の三点メニューボタン**
+   - ボタンを少し上にずらす
+   - 少し透過とグレーを入れる
+
+7. **オプションダイアログ機能追加**
+   - extra/sideを横に並べるか縦に並べるか選択可能に
+
+8. **ドロップダウンメニューの外側クリック**
+   - ドロップダウンメニュー押下後、関係ない画面内の場所がクリックされたら閉じる
 
 #### 完了条件
 - [x] セクション背景色とドロップ成功が一致

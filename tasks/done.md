@@ -1,3 +1,195 @@
+## 2025-11-18: 移動不可セクションへのドロップを完全に無効化（完了）
+
+- **タイムスタンプ**: 2025-11-18 07:40
+- **バージョン**: 0.4.0（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**移動不可セクションでドロップが受け付けられる問題を修正**
+
+**症状**:
+- 移動不可のセクション（例: extraデッキカードをmainへ）で背景色はつかないが、ドロップ自体は受け付けてしまう
+- セクション上でもカード上でもドロップが有効になっている
+
+**原因**:
+1. DeckSection.vue: `handleSectionDragOver()`で常に`event.preventDefault()`を呼んでいた
+2. DeckCard.vue: `handleDragOver()`で常に`event.preventDefault()`を呼んでいた
+3. `preventDefault()`を呼ぶとドロップが有効になるため、移動不可でもドロップできてしまう
+
+**修正内容**:
+1. **DeckSection.vue**:
+   - `handleSectionDragOver()`: 移動可能な場合のみ`event.preventDefault()`を呼ぶ
+   - `handleEndZoneDragOver()`: 同様に移動可能な場合のみ`event.preventDefault()`を呼ぶ
+
+2. **DeckCard.vue**:
+   - `handleDragOver()`: `deckStore.canMoveCard()`で移動可能かチェック
+   - 移動可能な場合のみ`event.preventDefault()`を呼んでドロップを有効化
+   - 移動不可の場合は`preventDefault()`を呼ばず、ハイライトも表示しない
+
+**修正後の動作**:
+- 移動不可のセクション・カードでは`event.preventDefault()`が呼ばれない
+- ドロップ自体が無効になり、カードが元のセクションに戻る
+- 移動可能なセクション・カードでのみドロップが有効になる
+- 視覚的フィードバック（背景色・ハイライト）も移動可能な場合のみ表示される
+
+### ビルド・デプロイ
+- ✅ TypeScriptビルド完了
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ Chromium再起動で新コードを反映
+
+---
+
+## 2025-11-18: 空セクションでのドロップ判定修正（完了）
+
+- **タイムスタンプ**: 2025-11-18 07:30
+- **バージョン**: 0.4.0（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**空セクションへのドロップが機能しない問題を修正**
+
+**症状**:
+- セクション内にカードがない場合、セクション辺付近でドロップできない
+- セクション内部の深い位置まで移動しないとドロップ判定が発火しない
+- 視覚的フィードバック（背景色）も表示されない
+
+**原因**:
+- DeckSection.vueの`.card-grid`要素に`@dragover.prevent`がついていた（line 36）
+- ハンドラー関数が指定されていないため、`event.preventDefault()`は呼ばれるが親要素の`handleSectionDragOver`まで伝播しない
+- セクションが空の場合、カード要素がないため`.card-grid`上でdragoverが発火する
+- しかし`handleSectionDragOver`が呼ばれないため、`isSectionDragOver`が`true`にならない
+- 結果として視覚的フィードバックが表示されず、ドロップ判定も正しく機能しない
+
+**修正内容** (src/components/DeckSection.vue):
+1. `.card-grid`から`@dragover.prevent`と`@drop="handleSectionDrop"`を削除（line 36）
+2. `handleSectionDrop()`関数を削除（不要になったため）
+3. return文から`handleSectionDrop`を削除
+
+**修正後の動作**:
+- 空セクションでも親要素の`handleSectionDragOver`が呼ばれる
+- `isSectionDragOver`が正しく`true`になり、背景色が表示される
+- セクション辺付近でもドロップ判定が正常に機能する
+
+### ビルド・デプロイ
+- ✅ TypeScriptビルド完了
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ Chromium再起動で新コードを反映
+
+---
+
+## 2025-11-18: ドラッグ&ドロップUI改善（完了）
+
+- **タイムスタンプ**: 2025-11-18 07:14
+- **バージョン**: 0.4.0（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**カード上での色変化を復元**
+
+**修正1 - DeckCard.vue handleDragOver**:
+- `event.preventDefault()`と`event.stopPropagation()`を追加
+- `isDragOver` ref変数を追加してdrag-over状態を管理
+- ドラッグ中のカードが自分自身でない場合のみハイライト表示
+- 同じcardIdとsectionTypeの場合はハイライトしない
+
+**修正2 - DeckCard.vue handleDragLeave**:
+- `event.relatedTarget`で子要素への移動を判別
+- 本当に離れた時のみ`isDragOver = false`
+
+**修正3 - DeckCard.vue CSS**:
+- `.drag-over`クラスで青いoutline（2px solid）と半透明背景を表示
+- `outline-offset: -2px`でレイアウトシフトを防止
+
+**セクション辺付近でのドロップ判定を修正**:
+- カードの`handleDragOver`に`event.preventDefault()`を追加
+- これにより、カード上でもドロップが有効になり、セクション辺付近でも正常に判定される
+
+### ビルド・デプロイ
+- ✅ TypeScriptビルド完了
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ Chromium再起動で新コードを反映
+
+---
+
+## 2025-11-18: extra配置不可カードのドロップ判定修正（完了）
+
+- **タイムスタンプ**: 2025-11-18 07:10
+- **バージョン**: 0.4.0（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**extra配置不可カードのドラッグ&ドロップ判定修正**
+
+**修正1 - canMoveCard()関数を新規追加** (src/stores/deck-edit.ts):
+- searchからmainへの移動: extraデッキカード（fusion/synchro/xyz/link）は拒否
+- searchからextraへの移動: extraデッキカードのみ許可
+- main/extra/side間の移動: extraデッキカードをmainには移動不可
+- 型ガード追加: `card.cardType === 'monster' && card.types`でTypeScriptエラーを回避
+- ストアにエクスポートしてDeckSection/DeckCardの両方から使用可能に
+
+**修正2 - DeckSection.vueの修正**:
+- `canDropToSection()`を`deckStore.canMoveCard()`を使う形に簡略化
+- `handleEndDrop()`冒頭で`canDropToSection()`をチェック
+- 移動不可の場合は早期return（セクション末尾へのドロップ時に適用）
+
+**修正3 - DeckCard.vueのhandleDrop()修正**:
+- カード上にドロップする場合も`deckStore.canMoveCard()`でチェック
+- 移動不可の場合は早期return
+
+### ビルド・デプロイ
+- ✅ TypeScriptビルド完了（型ガード追加でエラー解決）
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ Chromium再起動で新コードを反映
+
+---
+
+## 2025-11-18: UUID修正とテスト完了
+
+- **タイムスタンプ**: 2025-11-18 06:53
+- **バージョン**: 0.4.0（予定）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**UUID修正（同じcid,ciidのカードが間違って移動する問題）**
+
+**根本原因と修正**:
+1. **DeckCard.vueの画像key問題**:
+   - 問題: `uuid || ${cardId}-${ciid}` というfallbackで同じkeyが生成される
+   - 修正: uuid propsを`required: true`に変更、fallbackを削除
+   - 修正: CardList.vue/CardInfo.vueで`crypto.randomUUID()`を生成
+
+2. **deck-edit.tsのgenerateUUID()実装**:
+   - 問題: `${Date.now()}-${Math.random()...}` を使用（crypto.randomUUID()ではない）
+   - 修正: `generateUUID()`を`crypto.randomUUID()`に変更
+
+3. **moveCardFromSide()のuuidパラメータ不足**:
+   - 問題: DeckCard.handleTopRight() → moveCardFromSide() → moveCard() でuuidが失われる
+   - 修正: `moveCardFromSide(card, uuid?)`にuuidパラメータを追加
+
+**テストスクリプト作成**:
+- `tmp/wip/test-edit-uuid-fix.js`: edit画面でのUUID修正動作確認用
+- `tmp/wip/verify-uuid-fix.js`: カード移動の最終確認テスト
+- `tmp/wip/check-initialize-logs.js`: initializeDisplayOrder()のログキャプチャ
+- `tmp/wip/check-console-logs.js`: ブラウザコンソールログ確認用
+
+**動作確認結果**（2025-11-18）:
+- ✅ cid=12950のカード3枚（ciid=2が1枚、ciid=1が2枚）がそれぞれ異なるUUIDを持つ
+- ✅ UUID指定でカード移動が正しく動作
+- ✅ 移動したカードのUUIDがsideセクションに存在
+- ✅ UUID重複エラーなし
+
+### ビルド・デプロイ
+- ✅ TypeScriptビルド完了（3回）
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ Chromium再起動で新コードを反映
+
+---
+
 ## 2025-11-18: デッキメタデータ編集機能完了
 
 - **タイムスタンプ**: 2025-11-18 04:00
