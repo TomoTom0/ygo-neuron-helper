@@ -63,9 +63,14 @@
   - `src/api/card-faq.ts`
   - その他
 
-#### 5. デッキ表示機能の対応
-- [ ] シャッフル・ソート機能でのゲームタイプ判定
-- [ ] デッキ画像作成機能でのゲームタイプ判定
+#### 5. デッキ表示機能の対応 ✅ 完了
+- [x] シャッフル・ソート機能でのゲームタイプ判定
+  - `addShuffleButtons.ts`: `detectCardGameType()`を使用
+  - `isDeckDisplayPage(gameType)`でページ判定
+- [x] デッキ画像作成機能でのゲームタイプ判定
+  - `addImageButton.ts`: `detectCardGameType()`を使用
+  - `downloadDeckRecipeImage.ts`: `getDeckDisplayUrl()`でURL生成
+  - `createDeckRecipeImage.ts`: QRコードURL、Refererヘッダー、全て動的生成
 
 #### 6. テスト
 - [ ] `page-detector.ts` のテスト追加
@@ -73,9 +78,13 @@
 - [ ] 各機能の動作確認
 
 ### 次のアクション
-Phase 1（基盤整備）✅ 完了。次はPhase 2（デッキ表示機能の対応）：
-1. シャッフル・ソート機能でのゲームタイプ判定（優先度：最高）
-2. デッキ画像作成機能でのゲームタイプ判定（優先度：高）
+Phase 2（デッキ表示機能の対応）✅ 完了。
+Rush Duel対応の基本実装が完了しました。
+
+次のステップ候補：
+1. テスト作成（page-detector.tsのRush Duelテストケース）
+2. Phase 3以降（API修正、コンポーネント修正）の実装
+3. 実際のRush DuelページでのE2E動作確認
 
 ---
 
