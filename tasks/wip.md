@@ -10,17 +10,19 @@ PR #10で導入された新規機能（PNG メタデータ、デッキ インポ
 
 ### 実装計画（優先度順）
 
-#### Week 1: 高優先度テストとドキュメント草案
-- [x] `tests/unit/png-metadata.test.ts` 作成 ✅ 完了（2025-11-18）
+#### Week 1: 高優先度テストとドキュメント草案 ✅ 完了（2025-11-18）
+- [x] `tests/unit/png-metadata.test.ts` 作成 ✅
   - tEXtチャンクの読み書き、複数チャンク対応、CRC検証、エラー処理
   - PNGフィクスチャ作成（`tests/fixtures/png/`）
   - 12個のテストケース、全て成功
-- [x] `tests/unit/deck-import.test.ts` 作成 ✅ 完了（2025-11-18）
+- [x] `tests/unit/deck-import.test.ts` 作成 ✅
   - CSV/TXT/PNGパース、フォーマット検証、エラーハンドリング
   - インポートフィクスチャ作成（`tests/fixtures/import/`）
   - 19個のテストケース、全て成功
-- [ ] `docs/usage/import-export.md` 草案作成
-  - 各フォーマット説明、操作手順、トラブルシューティング
+- [x] `docs/usage/import-export.md` 草案作成 ✅
+  - 各フォーマット説明（CSV/TXT/PNG）
+  - エクスポート・インポート操作手順
+  - トラブルシューティング、FAQ、技術仕様
 
 #### Week 2: 残りの高優先度テスト
 - [ ] `tests/unit/deck-export.test.ts` 作成
