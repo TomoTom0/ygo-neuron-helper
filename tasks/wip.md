@@ -1,309 +1,464 @@
 # 作業中のタスク
 
-## v0.3.0リリースに向けた作業 🚀
+## Rush Duel対応（OCG/Rush両対応化）（2025-11-18）
 
-### 現在の状況
-- ✅ デッキ編集UI実装完了（PR#2マージ済み）
-- ✅ 多言語対応基盤整備完了
-- ✅ PRレビュー対応完了
-- ✅ テスト実装完了（125tests全pass）
-- ✅ ドキュメント整備完了（陳腐化対応・API更新・テスト実行方法）
+### 背景
+遊戯王公式ページには以下の2つのカードゲームがある：
+- **OCG** (yugiohdb) - 現在対応中
+- **Rush Duel** (rushdb) - 今後対応予定
 
-### v0.3.0リリース要件
+### 対応方針
 
-#### 1. テスト実装 📝
-- [ ] **E2Eテスト**
-  - [ ] デッキ編集画面の基本操作
-    - [ ] DNO入力からデッキロード
-    - [ ] カード検索と追加
-    - [ ] ドラッグ＆ドロップ
-    - [ ] デッキ保存
-  - [ ] カード詳細表示
-    - [ ] Info/Related/Products/QAタブ
-    - [ ] 収録パック展開・折りたたみ
-  - [ ] 表示モード切り替え
-    - [ ] リスト/グリッド表示
-    - [ ] ソート機能
-- [ ] **多言語テスト**
-  - [ ] 日本語ページでの動作
-  - [ ] 英語ページでの動作（card-detail-en.html使用）
-  - [ ] 言語自動検出
-- [ ] **ユニットテスト**
-  - [ ] language-detector.ts
-  - [ ] mapping-manager.ts
-  - [ ] card-animation.ts
+#### Phase 1: デッキ表示画面の機能のみ対応（今回）✅ 完了
+- シャッフル・ソート機能
+- デッキ画像作成機能
 
-#### 2. ドキュメント整備 📚
-- [x] **陳腐化ドキュメント対応完了**
-  - [x] docs/design/chrome-extension-architecture.md → _archived/へ移動
-  - [x] docs/design/implementation-design.md → _archived/へ移動
-  - [x] docs/design/implementation-guide.md → _archived/へ移動
-  - [x] docs/api/card-search.md: 多言語対応パラメータ追加
-  - [x] docs/dev/README.md: テスト実行方法を詳細化
+#### Phase 2以降: その他の機能も順次対応
 
-**残タスク（優先度：低）**
-- [ ] **ユーザー向けドキュメント拡充**
-  - [ ] README.md更新（v0.3.0の新機能説明）
-  - [ ] スクリーンショット追加
+### 実装完了内容
 
-- [ ] **開発者向けドキュメント拡充**
-  - [ ] docs/dev/testing.md作成（テスト戦略の詳細）
+#### 調査フェーズ ✅ 完了（2025-11-18）
+- [x] URL使用箇所の全調査（29ファイル）
+- [x] 調査結果のドキュメント化（`tmp/wip/rush-duel-url-investigation.md`）
 
-#### 3. オプションページ拡張 ⚙️
-- [x] **Omit and Usageタブ画面改善**
-  - [x] シャッフル機能はデモgifのみ表示（600px）
-  - [x] デッキ画像作成は作成画像見本のみ表示（600px）
-  - [x] 独自デッキ編集画面のomit設定項目追加
-  - [x] タブ構成（Omit and Usage のみ、General / Deck Edit Settings は v-if=false で無効化）
-  - [x] 画像の適切なサイズ調整（max-width: 600px）
-  - [x] 画像を左、テキストを右に配置（feature-content）
-- [x] **デッキ編集機能の詳細設定**
-  - [x] デフォルト表示モード（リスト/グリッド）
-  - [x] デフォルトソート順
-  - [x] アニメーション有効化/無効化
-- [x] **多言語設定**
-  - [x] 言語設定（自動/手動選択）
-  - [x] 手動選択時の言語選択UI（日本語/English）
-- [x] **設定画面UI改善**
-  - [x] 設定の保存・読み込み機能
-  - [x] トグルスイッチによる直感的なUI
-  - [x] タブ切り替え機能
-  - [x] General/Deck Edit Settingsタブを一時的に非表示化（v-if="false"）
-- [ ] **将来的な拡張**
-  - [ ] デフォルト値へのリセット機能
+#### Phase 1: 基盤整備 ✅ 完了（2025-11-18）
+- [x] 型定義の追加（`CardGameType = 'ocg' | 'rush'`）
+- [x] page-detector.tsの拡張
+  - `detectCardGameType()` - URLからゲームタイプを自動判定
+  - `getGamePath()` - 'ocg' → 'yugiohdb', 'rush' → 'rushdb'
+  - 全判定関数に`gameType?`オプション引数を追加
+- [x] url-builder.tsの作成（11個のURL生成関数）
 
-### リリース準備
-- [x] **v0.3.1 UI/UX改善完了**
-  - [x] CardQA/CardInfoのUI改善（横スクロール修正、アニメーション追加）
-  - [x] FAQ状態管理バグ修正（index-based → faqId-based）
-  - [x] カードリンククリック機能実装
-  - [x] ペンデュラム補足情報表示対応
-  - [x] テスト追加（CardQA.test.ts、CardInfo.test.ts）
-  - [x] ドキュメント更新（docs/usage/deck-edit.md）
-- [ ] **バージョン更新**
-  - [ ] version.dat → 0.3.0
-  - [ ] manifest.json → 0.3.0
-  - [ ] package.json → 0.3.0
-- [ ] **CHANGELOG作成**
-  - [ ] v0.3.0の変更内容まとめ
-  - [ ] 既知の問題・制限事項
-- [ ] **リリースノート作成**
-  - [ ] 新機能の説明
-  - [ ] 使い方のデモ動画/GIF
-- [ ] **最終確認**
-  - [ ] 全テスト通過確認
-  - [ ] ドキュメントリンク確認
-  - [ ] Chrome/Edge両方での動作確認
+#### Phase 2: デッキ表示機能の対応 ✅ 完了（2025-11-18）
+- [x] シャッフル・ソート機能でのゲームタイプ判定
+- [x] デッキ画像作成機能でのゲームタイプ判定
+- [x] QRコードURL、Refererヘッダーの動的生成
 
----
+#### バグ修正 ✅ 完了（2025-11-18）
+- [x] `getCardImageUrl()`の`/yugiohdb/`固定問題を修正
+  - `gameType`パラメータを追加（デフォルト: 'ocg'）
+  - 全呼び出し箇所で`detectCardGameType()`を使用
+- [x] `isDeckDisplayPage()`の`ope=1`省略対応
+  - `ope=1`が省略された場合もデッキ表示ページと判定
+- [x] 全コンポーネントで画像URL生成を修正
+  - DeckCard.vue, RightArea.vue, DeckEditLayout.vue
+  - createDeckRecipeImage.ts
 
-## デッキ編集ページ (#/ytomo/edit) の実装（完了）
+### 動作確認
+- ✅ Rush Duelページでシャッフル・ソートボタンが表示される
+- ✅ Rush Duelページでデッキ画像作成が動作する
+- ✅ 画像URLが正しく`/rushdb/`になる
+- ✅ `ope=1`が省略されたデッキ表示ページでも動作する
 
-### 現在の状況
-- ✅ 基本実装完了（PR#2マージ済み）
+### ビルド＆デプロイ
+- ✅ ビルド完了（2025-11-18 12:00 JST）
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+- ✅ コミット完了（3コミット）
+  - `565a848` - Phase 1: 基盤整備
+  - `0b88de8` - Phase 2: デッキ表示機能対応
+  - `c0389e8` - バグ修正（画像URL、ope=1省略対応）
 
-### 完了した項目
-1. ✅ ページルーティング (#/ytomo/edit)
-2. ✅ デッキ編集ストア (deckEditStore) 作成
-3. ✅ 基本コンポーネント構成
-   - TopBar (DNO入力、デッキ名、Load/Saveボタン)
-   - DeckAreas (Main/Extra/Side/Trashセクション)
-   - RightArea (Deck/Search/Cardタブ - レスポンシブ対応)
-4. ✅ Load/Save機能の基本実装
-5. ✅ カード検索機能の基本実装
-6. ✅ カード画像URL生成（共通関数使用）
-7. ✅ リスト/グリッド表示切り替え
-8. ✅ 詳細表示ON/OFF切り替え
-9. ✅ リンクマーカー表示の修正（2025-11-11）
-   - ビット位置マッピング修正（ビット0=位置1(左下)）
-   - すべてのマーカーを直角二等辺三角形に統一（clip-path使用）
-   - 非アクティブマーカーを薄いグレー(#ccc)に変更
-   - マーカーの向きを正しく修正（中心から外向き）
-   - マーカー間隔を密接に配置（24px×24px）
-   - マーカーボックスのボーダー削除
-10. ✅ レスポンシブデザイン実装（2025-11-11）
-   - 画面幅768px以下でDeckタブを表示
-   - モバイル時はDeckタブ内にデッキエリアを配置
-   - right-areaが画面幅100%に拡大
-   - 検索入力エリアの右側余白を削除
-11. ✅ テーマカラー統一（2025-11-11）
-   - CSS変数で青緑→赤紫グラデーションを定義
-   - activeタブに統一グラデーション適用
-   - card-detail-tabsの幅を親要素に合わせて調整
-12. ✅ UI改善（2025-11-12）
-   - deck-areasに下部65pxのmargin-bottom追加（検索エリアで隠れない対策）
-   - DeckSectionの.drop-zone-endのmin-heightを86px→0に変更（余計な空白削除）
-   - 検索結果をCardListコンポーネントに統一
-   - .search-contentにoverflow-y: autoとpadding追加（スクロール可能に）
-   - CardList.vueの.card-textにテキストはみ出し防止スタイル追加（4行省略表示）
-13. ✅ CardListコンポーネント統一とスタイル整理（2025-11-13）
-   - CardList.vueから height: 100% を削除（内容に合わせた高さに）
-   - CardList.vueに width: 100%, box-sizing, min-height: 90px を追加
-   - RightArea.vueから重複した検索結果用スタイルを削除
-   - CardDetail.vueから重複したカードリスト用スタイルを削除
-   - search tabとrelated tabでCardListのスタイルを統一
-   - CardQAコンポーネントを新規作成（Q&Aタブの分離準備）
-14. ✅ コンポーネント分離完了（2025-11-13）
-   - CardQAコンポーネント作成（Q&Aタブ専用）
-   - CardProductsコンポーネント作成（Productsタブ専用）
-   - CardDetail.vueからQA/Products関連のロジックとスタイルを分離
-   - 各コンポーネントは独立して動作可能に
-15. ✅ UI改善（2025-11-13）
-   - Grid表示時のカード画像サイズ拡大（36px→60px）
-   - Search areaで四行省略表示を有効化（一時対応）
-   - CardQA.vueのレイアウト改善
-     - 日付と展開ボタンを同じ行に配置（展開:左、日付:右）
-     - ボタンを四角形に変更（border-radius: 4px）
-     - ボタンサイズとアイコンを拡大（展開:24px/14px、縮小:32px/16px）
-   - CardProducts.vueのボタンスタイルも統一
-   - main-contentのpadding/gap削除
-16. ✅ 型リファクタリング（2025-11-13）
-   - imageIdをciidに統一、ciid/imgs必須化
-   - getCardImageUrl関数をcard.tsに追加（型と密結合）
-   - buildCardImageUrlは非推奨化、getCardImageUrlに委譲
-   - 全箇所でgetCardImageUrlに統一
-17. ✅ カード枚数制限実装（2025-11-13）
-   - main/extra/sideで同じカードは合計3枚まで
-   - addCard関数で制限チェック（無言で無効化）
+### 実装計画
 
-### PR#2レビュー対応（2025-11-13）
-#### High Priority
-- ✅ card-search.ts: request_localeのハードコード修正
-  - getCardDetailに言語引数を追加（省略時は自動検出）
-  - detectLanguageユーティリティの活用
-  - deck-operations.tsの全API呼び出しも対応
+#### 1. URL使用箇所の調査（優先度：最高）✅ 完了
+- [x] src/内でURLの値を用いている箇所を全て洗い出す
+  - ハードコードされたURL（`https://www.db.yugioh-card.com/yugiohdb/...`）
+  - 正規表現によるURL判定（`/yugiohdb/`, `/member_deck\.action/` など）
+  - API呼び出しのベースURL
+  - パーサーでのURL参照
+- [x] 調査結果をドキュメント化
+  - 📄 `tmp/wip/rush-duel-url-investigation.md` 作成完了
+  - 合計29ファイルで修正が必要
+  - 6段階の実装計画を策定
 
-#### Medium Priority
-- ✅ .gitignoreに.drawio.dtmpを追加
-- ✅ deck-operations.ts: imgsパラメータ修正（ciid使用）
-- ✅ console.log削除（DeckCard.vue, CardList.vue）
-- ✅ deck-operations.ts: コメントアウトコード削除
-- ✅ CardList.vue: scrollToTopをemitベースに変更
-- [ ] RightArea.vue: 無限スクロール実装改善（最適化タスク）
-- ✅ deck-edit.ts: sortDisplayOrderForOfficialにコメント追加
+#### 2. 型定義の追加 ✅ 完了
+- [x] `CardGameType = 'ocg' | 'rush'` の定義
+  - 配置場所: `src/types/settings.ts`
+  - export追加完了
 
-**全てのレビュー対応完了！**（無限スクロール改善は最適化タスクとしてpending.mdへ）
+#### 3. ページ判定ユーティリティの拡張（`src/utils/page-detector.ts`）✅ 完了
+- [x] `detectCardGameType(): CardGameType` - URLからゲームタイプを自動判定
+- [x] `getGamePath(cardGameType: CardGameType): string` - 'ocg' → 'yugiohdb', 'rush' → 'rushdb'
+- [x] 各判定関数に `cardGameType?: CardGameType` 引数を追加
+  - `isDeckDisplayPage(cardGameType?: CardGameType): boolean`
+  - `isDeckEditPage`, `isDeckListPage`, `isCardSearchPage`, `isCardDetailPage`
+  - `isFAQSearchPage`, `isFAQDetailPage`, `isDeckSearchPage`, `isYugiohDBSite`
 
-### 現在対応中のバグ・課題
-1. ✅ UI改善と翻訳
-   - ✅ infoタブのカード画像サイズ調整（90px）
-   - ✅ 属性・種族・effectType・monsterTypeの日本語表示
-   - ✅ Q&A展開/折りたたみ機能
-   - ✅ Q&A展開/折りたたみのアニメーション
-   - ✅ カード変更時のQA展開状態リセット
-   - ✅ QA折りたたみ時の自動スクロール調整（スムーズスクロール）
-   - ✅ レアリティバッジの色表示
-   - ✅ relatedタブのsort/list/grid/順次読み込み
-   - ✅ ボタン色分け（info:オレンジ、link:水色、M/E:青、S:紫）
-   - ✅ タブ切り替えアニメーション（fadeIn 0.2s）
-   - ✅ stat-box-typeの横スクロール問題修正（95%幅）
-   - ✅ Productsタブの展開機能（パック内カード一覧表示）
-     - ✅ パック名の左下に展開ボタン配置
-     - ✅ `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&pid=パックID&rp=99999`
-     - ✅ 検索結果をパースしてlist/grid切り替え可能に表示
-   - ✅ CardListコンポーネントに上スクロールボタン追加
-     - ✅ related/productsの展開ブロック最上部へのスクロール機能
-     - ✅ .card-tab-contentを正しくスクロール対象に設定
-   - ✅ QA/Products縮小時の自動上スクロール機能
-     - ✅ 縮小で減った高さ分だけ上にスクロール調整
-     - ✅ .card-tab-contentを正しいスクロールコンテナとして使用
-   - ✅ スクロールバーの常時表示（レイアウトずれ防止）
-     - ✅ .card-tab-contentに overflow-y: scroll を設定
-     - ✅ width: 100% と box-sizing: border-box を追加
-     - ✅ .card-list-results は overflow-y: visible（親がスクロール担当）
-     - ✅ pack-details のオーバーフロー防止（text-overflow: ellipsis）
-     - ✅ pack-details のグリッド列幅調整（60px 100px 1fr）
+#### 3.1 URLビルダーユーティリティの作成 ✅ 完了
+- [x] `src/utils/url-builder.ts` を新規作成
+  - `buildApiUrl(path: string, gameType: CardGameType): string`
+  - `buildImageUrl(cid, ciid, imgHash, gameType): string`
+  - `buildFullUrl(relativePath): string`
+  - `getDeckApiEndpoint(gameType): string`
+  - `getCardSearchEndpoint(gameType): string`
+  - `getFaqSearchEndpoint(gameType): string`
+  - `getDeckSearchPageUrl(gameType, locale): string`
+  - `getCardSearchFormUrl(gameType): string`
+  - `getImagePartsBaseUrl(gameType): string`
+  - `getVueEditUrl(gameType, dno?): string`
+  - `getDeckDisplayUrl(cgid, dno, gameType): string`
 
-### 残課題
-- ✅ CardQAとCardProductsコンポーネントの分離完成
-- ⏭️ Load時のデッキ情報反映確認
-- ⏭️ Save機能のダイアログ実装
-- ⏭️ カードドラッグ＆ドロップ機能
-- ⏭️ 全体的な動作確認とテスト
-- ⏭️ docs/usage/index.mdの更新（デッキ編集ページの使い方を追加）
+#### 4. API URLの動的生成
+- [ ] ベースURLをゲームタイプから生成する関数
+- [ ] 各APIファイルの修正
+  - `src/api/deck-operations.ts`
+  - `src/api/card-search.ts`
+  - `src/api/card-faq.ts`
+  - その他
+
+#### 5. デッキ表示機能の対応 ✅ 完了
+- [x] シャッフル・ソート機能でのゲームタイプ判定
+  - `addShuffleButtons.ts`: `detectCardGameType()`を使用
+  - `isDeckDisplayPage(gameType)`でページ判定
+- [x] デッキ画像作成機能でのゲームタイプ判定
+  - `addImageButton.ts`: `detectCardGameType()`を使用
+  - `downloadDeckRecipeImage.ts`: `getDeckDisplayUrl()`でURL生成
+  - `createDeckRecipeImage.ts`: QRコードURL、Refererヘッダー、全て動的生成
+
+#### 6. テスト
+- [ ] `page-detector.ts` のテスト追加
+  - Rush Duel用のテストケース
+- [ ] 各機能の動作確認
+
+### 次のアクション
+Rush Duel対応（Phase 1-2）✅ 完了・動作確認済み。
+
+デッキ表示機能（シャッフル・ソート・画像作成）がOCG/Rush Duel両対応になりました。
+
+### 次のステップ候補：
+1. ✅ **デッキ編集UI改善完了**（2025-11-18）
+   - 検索入力欄の三点メニューボタンスタイル改善
+   - ドロップダウンメニューの外側クリック対応
+   - ドロップダウンメニューの閉じるアニメーション追加
+   - Extra/Sideデッキの配置方向選択（既に実装済み確認）
+
+2. ✅ **メタデータUIの改善** ✅ 完了（2025-11-18）
+   - [x] タブの順番変更：Card, Search, Metadata
+   - [x] 初期タブをCardに変更
+   - [x] メタデータUIのレイアウト変更
+     - 1行目：左に公開/非公開Switch、デッキタイプをアイコンボタン表示、デッキスタイルをボタン表示
+     - 2行目：左にTagボタン、右にCategoryボタン
+     - 3行目：選択されたTag/Categoryをチップ表示（小さなチップ）
+     - 4行目：デッキ説明（見出し「説明」+ 文字数カウンター current/1000）
+   - [x] 公開/非公開をSwitchボタンに変更（文字が中に入る形式）
+   - [x] デッキタイプとデッキスタイルのドロップダウンメニュー実装
+     - SVGアイコン表示、画面はみ出し対応
+   - [x] Tag/Categoryボタンとチップ表示の実装
+     - チップサイズを小さく調整、削除ボタン付き
+   - [x] Categoryダイアログの実装（検索、フィルター、選択済みチップ、グリッド表示）
+     - 別コンポーネント化（CategoryDialog.vue）でright-area範囲外に表示
+     - 画面からはみ出ない位置調整
+     - MDI-icon使用（検索ボタン）
+   - [x] デッキ説明のtextarea改善（高さを親要素に合わせて拡大）
+     - 親要素幅・高さの拡大、textarea自体のスタイル改善
+   - [x] カード追加時のアニメーション復元
+   - [x] カード枚数制限超過時の警告表示
+     - 同じcidの全カード（main/extra/side）を半透明化＋赤背景オーバーレイで警告
+     - プラスボタンをバツアイコン＋赤色に変更
+     - 500ms後に自動的に警告表示を解除（1.5秒→1.0秒→500msに短縮）
+     - プラスボタン（bottom-right）の赤色スタイル追加
+     - カード自体の赤色背景オーバーレイ修正（::before疑似要素で実装）
+   - [x] カード移動のエラーハンドリング統一（2025-11-18 17:05 JST）
+     - ドロップ移動と押下移動でエラー処理を統一
+     - ストアの移動メソッドが戻り値 `{ success: boolean; error?: string }` を返すように修正
+     - エラーハンドリング統合完了: DeckCard.vue, DeckSection.vueに共通関数`handleMoveResult()`を追加
+     - 重複していたエラーログ出力（11箇所）を2つの共通関数に集約
+   - [x] カード追加時のフラッシュエフェクト（2025-11-18）
+     - プラスボタン押下でカード追加時のアニメーション実装
+     - 枚数超過時: カード背景を赤色表示（500ms）、プラスボタンをバツ＋赤色表示
+     - 同じcidのmain/extra/side全カードに赤色警告を表示（半透明化＋赤背景オーバーレイ）
+     - 500ms後に自動的に警告表示を解除
+   - [x] ライトテーマでの文字色・背景色修正（白背景黒文字に統一）
+   - [x] レイアウト調整（要素の高さ・幅・配置の統一）
+   - [x] CategoryDialogのスタイル改善（要素間の隙間調整）
+   - ビルド＆デプロイ完了（2025-11-18 17:15 JST）
+   
+   **残課題（次回以降）**:
+   - CategoryダイアログのFilterボタンの挙動実装
+   - Tagダイアログの実装（Categoryと同様の仕様）
+   
+3. **v0.4.0の他の機能実装**（優先度：高）
+   - タグマスターデータの取得実装
+   - デッキエクスポート/インポートのテスト
+   - 画像サイズ切り替えのUI実装
 
 ---
 
-## Phase 3: 他言語対応（i18n）
+## v0.4.0: デッキ編集UI改善とメタデータ編集機能（2025-11-18）
 
-### 現在の作業: 一時中断（prototype作業を優先）
+### ドラッグ&ドロップUIの改善
 
-**ブランチ構成**:
-- ✅ main → dev にマージ完了
-- ✅ feature/i18n-support ブランチ作成
+#### 実装内容
+- [x] セクションドロップハンドラーの追加（DeckSection.vue）
+  - `@drop="handleEndDrop"` を追加してセクション末尾へのドロップを処理
+- [x] 背景枠線の位置ずれ修正
+  - `border: 2px dashed` → `outline: 2px dashed` + `outline-offset: -2px`
+  - レイアウトシフトを防止
+- [x] アニメーション中のz-index修正
+  - 移動中のカードに `z-index: 1000` を適用
+  - アニメーション完了後にリセット
+- [x] 同じセクション内の並び替えロジック修正
+  - aをbにドロップ時の挙動を修正：
+    - aが前 → b, a の順（aをbの後ろに挿入）
+    - aが後ろ → a, b の順（aをbの前に挿入）
+- [x] ビルド・デプロイ
+- [x] ボタン押下時の移動アニメーション修正
+  - `shuffleSection` と `sortSection` にFLIPアニメーションを追加
+  - `recordAllCardPositionsByUUID()` でFirst位置を記録
+  - `animateCardMoveByUUID()` でアニメーション実行
+- [x] ビルド・デプロイ（アニメーション対応）
+- [x] アニメーション不具合の修正
+  - `reorderCard` にrequestAnimationFrame追加（タイミング修正）
+  - 画像の`key`属性をUUIDベースに変更（fadeInアニメーション防止）
+- [x] ビルド・デプロイ（不具合修正）
+- [x] アニメーション不具合の根本原因修正
+  - `moveCard`と`moveCardWithPosition`で移動元セクションを追加
+  - `new Set([to])` → `new Set([from, to])`
+  - 移動元のカードが詰まるアニメーションを表示
+- [x] ビルド・デプロイ（根本修正）
+- [x] 最後の1枚ドラッグ問題の修正
+  - `.card-grid`の`min-height`をカード1枚分に変更
+  - `drop-zone-end`の`min-height`をカード1枚分に変更
+  - ドラッグ中にカードが`position: absolute`になっても高さを維持
+- [x] ビルド・デプロイ（最後の1枚修正）
+- [x] 移動不可セクションの背景色表示防止
+  - `draggingCard`状態をストアに追加
+  - DeckCard.vueでdragstart/dragend時に設定/クリア
+  - DeckSection.vueで`canDropToSection()`関数を追加
+  - 移動可能な場合のみ背景色を表示
+- [x] ビルド・デプロイ（背景色表示修正）
+- [x] 原因判明：ビルドが古かった（11月16日のdist、今日は18日）
+- [x] 再ビルド・デプロイ
+- [x] 動作確認（並び替え・移動・最後の1枚・背景色表示含む）
 
-**調査タスク**:
-1. ✅ 言語ごとのテキスト差異を調査（Phase 1完了）
-   - ✅ 括弧: 日本語【】→ 英語[]
-   - ✅ スラッシュ: 両言語とも全角「／」
-   - ✅ 種族: ドラゴン族→Dragon、機械族→Machine
-   - ✅ タイプ: 通常→Normal、効果→Effect
-2. ⏸️ 調査結果をドキュメント化（一時中断）
-   - ✅ 記号の違いを確認
-   - ⏸️ 検索フォームから全マッピングを取得
-3. ⏭️ 他言語対応の実装方針決定
-   - ⏭️ 言語検出方法の確定
-   - ⏭️ マッピングテーブル設計
-4. ⏭️ パーサーの多言語対応実装
-   - ⏭️ 括弧除去の正規表現修正
-   - ⏭️ 多言語マッピングテーブル実装
+#### 修正完了した問題（2025-11-18）
 
-**Phase 2完了内容**:
-- ✅ デッキ画像作成機能（v0.1.0）
-- ✅ シャッフル・ソート・固定機能（v0.2.0）
-- ✅ オプションページによる機能制御
-- ✅ 画像ベースの効果タイプ判定
+- ✅ ボタン押下時に間違ったカードが移動する問題
+- ✅ extra配置不可カードのドラッグ時の背景色表示（部分修正）
 
-**Phase 2のPR状況**:
-- ✅ Geminiレビューコメントに対応（4件）
-- ✅ 各コメントに個別に返信
-- ✅ 設定制御機能の追加
-- ✅ 効果タイプ判定の画像ベース化
-- ⏭️ feature/deck-recipe-image のマージ待ち（別途対応予定）
+#### 現在作業中の問題（2025-11-18）
 
-#### 完了済み機能
-- [x] デッキ画像作成機能
-  - [x] API層実装（Canvas、QRコード）
-  - [x] ダイアログUI実装
-  - [x] ダウンロード機能実装
-  - [x] 処理中アニメーション実装
-  - [x] Node.js環境での画像生成対応
-  - [ ] オプションページでscale設定（将来的な拡張）
+1. **ボタン押下時のちらつき**
+   - 同じセクション内の無関係なカードがちらつく
+   - 原因：カード移動時に他カードが詰まるアニメーションが表示される（これは正常動作の可能性）
 
-- [x] シャッフル機能
-  - [x] デッキ表示ページのDOM構造調査
-  - [x] ボタン追加機能の実装
-  - [x] シャッフル機能の実装
-  - [x] ソート機能の実装
-  - [x] カード固定機能の実装
-  - [x] QRコード修正（URLパラメータ正規化）
+2. ✅ **UI改善完了**（2025-11-18 12:15 JST）
+   - [x] 検索入力欄の三点メニューボタン
+     - 透過度追加（rgba(255, 255, 255, 0.85)）
+     - 色を薄いグレーに変更（#999）
+     - 位置調整（top: -2px）
+   - [x] ドロップダウンメニューの外側クリック
+     - クリックイベントリスナーで外側クリック時に閉じる
+   - [x] Extra/Sideデッキの配置方向選択
+     - SettingsPanel.vueで既に実装済み（横並び/縦並び）
 
-- [x] オプションページ
-  - [x] 機能一覧表示（TOC）
-  - [x] 機能説明と使い方
-  - [x] ON/OFF切り替え
-  - [x] content scriptでの設定読み込み
+2. **ボタン押下時に間違ったカードが移動** ⚠️ 重大 → ✅ **修正完了・動作確認済み**
+   - 同じcidの別カードが移動して、押下したカード自体が移動しない
+   - **根本原因1**: DeckCard.vueの画像keyに`uuid || ${cardId}-${ciid}`というfallbackがあった
+     - 空文字列のuuidはfalsyなので、同じ(cardId, ciid)のカードが同じkeyを持ち、Vueが同一コンポーネントと認識
+     - `this.uuid`が間違った値を参照していた
+   - **修正1**:
+     1. DeckCard.vueのuuid propsを`required: true`に変更
+     2. 画像keyのfallbackを削除（`:key="uuid"`のみ）
+     3. CardList.vueで各カードにcrypto.randomUUID()を生成（computed）
+     4. CardInfo.vueでcrypto.randomUUID()を生成（computed）
+   - **根本原因2**: deck-edit.tsのgenerateUUID()が古い実装のまま
+     - `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` を使用
+     - crypto.randomUUID()ではなかった
+   - **修正2**: generateUUID()をcrypto.randomUUID()に変更
+   - **根本原因3**: moveCardFromSide()がuuidパラメータを受け取っていない
+     - DeckCard.handleTopRight() → moveCardFromSide() → moveCard() の経路でuuidが失われる
+     - moveInDisplayOrder()でuuid: undefinedとなり、lastIndexOf()のfallbackが発動
+   - **修正3**: moveCardFromSide(card, uuid?)にuuidパラメータを追加、moveCard()に渡す
+   - ビルド・デプロイ完了（3回）
+   - **テストスクリプト作成**: `tmp/wip/test-edit-uuid-fix.js`, `tmp/wip/verify-uuid-fix.js`
+     - edit画面でのUUID修正動作確認用
+     - tests/browser/test-buttons.jsを参考に作成
+     - DOM要素のdata属性のみでアクセス（Vue appやPiniaストアに直接アクセスしない）
+     - 同じcid,ciidのカード2枚をmain→sideに移動してUUID動作確認
+   - **動作確認完了**（2025-11-18）:
+     - cid=12950のカード3枚（ciid=2が1枚、ciid=1が2枚）がそれぞれ異なるUUIDを持つことを確認
+     - UUID指定でカード移動が正しく動作することを確認
+     - 移動したカードのUUIDがsideセクションに存在することを確認
+
+3. **extra配置不可カードのドラッグ時の背景色** → ✅ **修正完了**
+   - extraセクションに配置できないカードをドラッグ時にextraセクション上で背景色が表示される
+   - **根本原因1**: searchからの移動時、mainとextraを区別せずに常にtrueを返していた
+     - 207-209行目: `if (to === 'main' || to === 'extra') return true`
+     - extraデッキカードかどうかのチェックが行われていなかった
+   - **修正1** (deck-edit.ts canMoveCard関数を新規追加):
+     - searchからmainへの移動: extraデッキカード（fusion/synchro/xyz/link）は拒否
+     - searchからextraへの移動: extraデッキカードのみ許可
+     - `card.cardType === 'monster' && card.types`で型ガード
+     - ストアにエクスポートしてDeckSection/DeckCardの両方から使用可能に
+   - **修正2** (DeckSection.vue):
+     - `canDropToSection()`を`deckStore.canMoveCard()`を使う形に簡略化
+     - `handleEndDrop()`冒頭で`canDropToSection()`をチェック、移動不可なら早期return
+   - **修正3** (DeckCard.vue handleDrop):
+     - カード上にドロップする場合も`deckStore.canMoveCard()`でチェック
+     - 移動不可の場合は早期return
+   - ビルド・デプロイ完了（2025-11-18 07:05）
+
+4. **ドラッグ時の他カード上での色変化が消失** → ✅ **修正完了**
+   - カードをドラッグ移動時に他のカードの上にいるときに、そのカードの色が変わらない
+   - **根本原因**: handleDragOverで`event.preventDefault()`を呼んでいなかった
+   - **修正1** (DeckCard.vue handleDragOver):
+     - `event.preventDefault()`と`event.stopPropagation()`を追加
+     - `isDragOver` ref変数を追加してdrag-over状態を管理
+     - 自分自身の上ではハイライトしない（同じcardIdとsectionType）
+   - **修正2** (DeckCard.vue handleDragLeave):
+     - `event.relatedTarget`で子要素への移動を判別
+     - 本当に離れた時のみハイライト解除
+   - **修正3** (DeckCard.vue CSS):
+     - `.drag-over`クラスで青いoutlineと半透明背景を表示
+   - ビルド・デプロイ完了（2025-11-18 07:15）
+
+5. **セクション辺付近でのドロップ判定失敗** → ✅ **修正完了**
+   - 完全にカードがセクション内にあっても、セクションの辺に近い位置だと移動が判定されない
+   - **根本原因**: カードの`handleDragOver`で`event.preventDefault()`を呼んでいなかった
+   - **修正**: DeckCard.vue handleDragOverに`event.preventDefault()`を追加
+   - これにより、カード上でもドロップが有効になり、セクション辺付近でも正常に判定される
+   - ビルド・デプロイ完了（2025-11-18 07:15）
+
+6. **検索入力欄の三点メニューボタン**
+   - ボタンを少し上にずらす
+   - 少し透過とグレーを入れる
+
+7. **オプションダイアログ機能追加**
+   - extra/sideを横に並べるか縦に並べるか選択可能に
+
+8. **ドロップダウンメニューの外側クリック**
+   - ドロップダウンメニュー押下後、関係ない画面内の場所がクリックされたら閉じる
+
+#### 完了条件
+- [x] セクション背景色とドロップ成功が一致
+- [x] 背景枠線による位置ずれなし
+- [x] アニメーション中のカードが最前面表示
+- [x] 同じセクション内の並び替えが正しく動作
+- [x] ボタン押下時（Shuffle/Sort）のアニメーション動作
+- [x] 画像のfadeInアニメーション防止（UUID key使用）
+- [x] UI改善完了
+  - [x] 検索入力欄の三点メニューボタンスタイル改善
+  - [x] ドロップダウンメニューの外側クリック対応
+  - [x] Extra/Sideデッキの配置方向選択（既に実装済み確認）
 
 ---
 
-## 最近完了したタスク
+### ⚠️ 緊急修正: displayOrder/deckInfo設計修正（完了）
 
-### 2025-11-09: Phase 1完了
-- ✅ CardType型を英語識別子に統一
-- ✅ 全パーサー実装完了（カード詳細、FAQ一覧、FAQ詳細）
-- ✅ tests/combine/parser/ 全テスト成功
-- ✅ デバッグ表示削除・ポップアップUI実装
+#### 概要
+displayOrderとdeckInfoの二重管理による設計不備を修正。
+「displayOrder操作関数が常にdeckInfoも同時更新する」という原則を徹底。
 
-### 2025-11-07: デッキレシピ画像作成機能の完成（API層）
-- ✅ Canvas描画、カードレイアウト
-- ✅ QRコード生成（公開デッキ用）
-- ✅ カードバック画像
-- ✅ 全カラーバリエーション（赤/青、QR有無）
-
-詳細は `tasks/done.md` を参照
+#### 実装計画
+- [x] `insertToDisplayOrder(card, section, targetUuid)`関数を新規作成
+- [x] `reorderWithinSection(section, sourceUuid, targetUuid)`関数を新規作成
+- [x] `moveCardWithPosition`を修正
+- [x] `insertCard`を削除
+- [x] DeckSection.vueの直接操作を削除
+- [x] ビルド・デプロイ
+- [x] CLAUDE.md/ドキュメントの陳腐化情報を調査・修正
 
 ---
 
-## ブランチ構成
-- `main`: 安定版
-- `feature/deck-recipe-image`: デッキレシピ画像機能の実装ブランチ（現在）
+### 概要
+デッキ編集UIを改善し、以下の機能を実装：
+
+1. **オプション設定のテーマ変更**
+   - デフォルトテーマをライトテーマに変更（現在darkテーマが実質機能していないため）
+
+2. **デッキメタデータ編集機能**
+   - right-areaのheader tabをmetadata tabに変更
+   - デッキ名、公開設定などのメタデータを編集可能に
+
+### 実装計画
+
+#### Phase 1: オプション設定のテーマ変更
+- [x] デフォルトテーマをライトテーマに設定
+- [x] 設定ファイル修正（`src/types/settings.ts`: DEFAULT_APP_SETTINGS.theme = 'light'）
+- [x] ビルド・デプロイ
+
+#### Phase 2: メタデータ編集機能の調査と実装
+- [x] right-areaのheader tabの調査
+- [x] header tab → metadata tab に名前変更（`src/components/RightArea.vue`）
+- [x] メタデータ編集UIの設計
+  - デッキ名、公開設定、タグなどの編集フォーム
+  - `src/components/DeckMetadata.vue`を作成
+- [x] メタデータ保存機能の実装
+  - APIエンドポイント調査（既存の`saveDeck`を利用）
+  - 保存ロジック実装
+- [x] ビルド・デプロイ
+
+#### Phase 3: メタデータUIの詳細改善
+- [x] デッキ名フィールドを削除（ヘッダーに属するため）
+- [x] カテゴリ選択UIを追加（検索・ドロップダウン・チップ表示）
+- [x] タグ選択UIを追加（プリセットベース、カテゴリと同様のUI）
+- [x] select要素のoption要素にスタイルを明示的に設定
+- [x] todo.mdにタグマスターデータ取得タスクを追加
+- [x] ビルド・デプロイ
+
+### 完了条件
+- [x] デフォルトテーマがライトテーマに設定されている
+- [x] メタデータタブが表示され、編集可能
+- [x] カテゴリ・タグ選択UIが実装されている
+- [x] 全てのドロップダウン要素に明示的なスタイルが適用されている
+- [x] ビルド・デプロイ完了
+
+---
+
+## v0.3.9: PNG画像へのデッキ情報埋め込み機能（2025-11-17）
+
+### 概要
+デッキ画像（PNG）にデッキ情報（section, cid, ciid, quantity）を埋め込み、
+画像からデッキをインポートできる機能を追加する。
+
+### 技術方式
+- **PNGメタデータ（tEXtチャンク）方式** を採用
+- ブラウザ環境でバイナリ操作を行い、PNGのIENDチャンク前にtEXtチャンクを挿入
+- 画像の見た目に影響しない標準的な方法
+
+### 実装計画
+
+#### 1. PNG埋め込み用ユーティリティ (`src/utils/png-metadata.ts`)
+- [ ] `embedDeckInfoToPNG(pngBlob: Blob, deckInfo: DeckInfo): Promise<Blob>`
+  - PNGバイナリにtEXtチャンクを追加
+  - キー: "DeckInfo"
+  - 値: JSON.stringify({main: [...], extra: [...], side: [...]})
+- [ ] `extractDeckInfoFromPNG(pngBlob: Blob): Promise<DeckInfo | null>`
+  - PNGバイナリからtEXtチャンクを抽出
+  - JSON.parseでデッキ情報を復元
+
+#### 2. エクスポート機能拡張 (`src/utils/deck-export.ts`)
+- [ ] `exportToPNG(deckInfo: DeckInfo, options): Promise<Blob>`
+  - createDeckRecipeImage を呼び出して画像生成
+  - embedDeckInfoToPNG でメタデータ埋め込み
+- [ ] `downloadDeckAsPNG(deckInfo, filename, options)`
+  - PNG画像をダウンロード
+
+#### 3. インポート機能拡張 (`src/utils/deck-import.ts`)
+- [ ] `importFromPNG(file: File): Promise<ImportResult>`
+  - extractDeckInfoFromPNG でメタデータ抽出
+  - 抽出失敗時はエラーメッセージ
+- [ ] `importDeckFromFile` 修正
+  - PNG形式（.png）に対応
+
+#### 4. テスト
+- [ ] ユニットテスト作成
+- [ ] E2Eテスト（エクスポート→インポート）
+
+### 完了条件
+- [x] PNG埋め込みユーティリティ実装
+- [x] エクスポート機能でPNG形式に対応
+- [x] インポート機能でPNG形式に対応
+- [x] テスト作成と実行
+
+### 残タスク
+- [x] ExportDialogにPNG形式を追加
+- [x] ImportDialogでPNG形式に対応
+- [x] ビルド・デプロイ
+- [x] バージョン更新とコミット (v0.3.9)
+
+### オプション（後で実装可能）
+- [ ] PNG画像プレビュー表示（ImportDialog）
+- [ ] PNG画像エクスポートオプション詳細設定（scale, color, QR）
+- [ ] ブラウザE2Eテスト（実際のデッキ画像で検証）
