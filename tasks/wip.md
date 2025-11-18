@@ -9,11 +9,46 @@
 
 ### 対応方針
 
-#### Phase 1: デッキ表示画面の機能のみ対応（今回）
+#### Phase 1: デッキ表示画面の機能のみ対応（今回）✅ 完了
 - シャッフル・ソート機能
 - デッキ画像作成機能
 
 #### Phase 2以降: その他の機能も順次対応
+
+### 実装完了内容
+
+#### 調査フェーズ ✅ 完了（2025-11-18）
+- [x] URL使用箇所の全調査（29ファイル）
+- [x] 調査結果のドキュメント化（`tmp/wip/rush-duel-url-investigation.md`）
+
+#### Phase 1: 基盤整備 ✅ 完了（2025-11-18）
+- [x] 型定義の追加（`CardGameType = 'ocg' | 'rush'`）
+- [x] page-detector.tsの拡張
+  - `detectCardGameType()` - URLからゲームタイプを自動判定
+  - `getGamePath()` - 'ocg' → 'yugiohdb', 'rush' → 'rushdb'
+  - 全判定関数に`gameType?`オプション引数を追加
+- [x] url-builder.tsの作成（11個のURL生成関数）
+
+#### Phase 2: デッキ表示機能の対応 ✅ 完了（2025-11-18）
+- [x] シャッフル・ソート機能でのゲームタイプ判定
+- [x] デッキ画像作成機能でのゲームタイプ判定
+- [x] QRコードURL、Refererヘッダーの動的生成
+
+#### バグ修正 ✅ 完了（2025-11-18）
+- [x] `getCardImageUrl()`の`/yugiohdb/`固定問題を修正
+  - `gameType`パラメータを追加（デフォルト: 'ocg'）
+  - 全呼び出し箇所で`detectCardGameType()`を使用
+- [x] `isDeckDisplayPage()`の`ope=1`省略対応
+  - `ope=1`が省略された場合もデッキ表示ページと判定
+- [x] 全コンポーネントで画像URL生成を修正
+  - DeckCard.vue, RightArea.vue, DeckEditLayout.vue
+  - createDeckRecipeImage.ts
+
+### 動作確認
+- ✅ Rush Duelページでシャッフル・ソートボタンが表示される
+- ✅ Rush Duelページでデッキ画像作成が動作する
+- ✅ 画像URLが正しく`/rushdb/`になる
+- ✅ `ope=1`が省略されたデッキ表示ページでも動作する
 
 ### 実装計画
 
@@ -78,13 +113,14 @@
 - [ ] 各機能の動作確認
 
 ### 次のアクション
-Phase 2（デッキ表示機能の対応）✅ 完了。
-Rush Duel対応の基本実装が完了しました。
+Rush Duel対応（Phase 1-2）✅ 完了・動作確認済み。
+
+デッキ表示機能（シャッフル・ソート・画像作成）がOCG/Rush Duel両対応になりました。
 
 次のステップ候補：
-1. テスト作成（page-detector.tsのRush Duelテストケース）
-2. Phase 3以降（API修正、コンポーネント修正）の実装
-3. 実際のRush DuelページでのE2E動作確認
+1. デッキ編集UI改善（ドラッグ&ドロップUIの改善）の続き
+2. v0.4.0の他の機能実装（検索、メタデータ編集など）
+3. Rush Duel対応のPhase 3以降（API修正、必要に応じて）
 
 ---
 
