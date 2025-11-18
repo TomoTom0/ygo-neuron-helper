@@ -1,3 +1,57 @@
+## 2025-11-18: Rush Duel対応（OCG/Rush Duel両対応化）完了
+
+- **タイムスタンプ**: 2025-11-18 12:00 JST
+- **バージョン**: 0.4.0（開発中）
+- **ブランチ**: `feature/v0.4.0-foundation`
+
+### 実装内容
+
+**Phase 1: 基盤整備** (commit: `565a848`)
+- 型定義追加: `CardGameType = 'ocg' | 'rush'` (`src/types/settings.ts`)
+- ページ判定ユーティリティ拡張 (`src/utils/page-detector.ts`):
+  - `detectCardGameType()` - URLからゲームタイプを自動判定
+  - `getGamePath()` - 'ocg' → 'yugiohdb', 'rush' → 'rushdb'
+  - 全10個の判定関数に`gameType?`オプション引数を追加
+- URLビルダー作成 (`src/utils/url-builder.ts`):
+  - 11個のURL生成関数を実装
+  - `buildApiUrl()`, `buildImageUrl()`, `getDeckDisplayUrl()` など
+
+**Phase 2: デッキ表示機能の対応** (commit: `0b88de8`)
+- シャッフル・ソート機能でゲームタイプ自動判定
+  - `src/content/shuffle/addShuffleButtons.ts`
+- デッキ画像作成機能でゲームタイプ自動判定
+  - `src/content/deck-recipe/addImageButton.ts`
+  - `src/content/deck-recipe/downloadDeckRecipeImage.ts`
+  - `src/content/deck-recipe/createDeckRecipeImage.ts`
+- QRコードURL、Refererヘッダーを動的生成
+
+**バグ修正** (commit: `c0389e8`)
+- `getCardImageUrl()`の`/yugiohdb/`固定問題を修正
+  - `gameType`パラメータを追加（デフォルト: 'ocg'）
+  - 全コンポーネントで`detectCardGameType()`を使用
+- `isDeckDisplayPage()`の`ope=1`省略対応
+  - `ope`パラメータがない場合もデッキ表示ページと判定
+- 全コンポーネントで画像URL生成を修正
+  - `DeckCard.vue`, `RightArea.vue`, `DeckEditLayout.vue`
+  - `createDeckRecipeImage.ts`
+
+### 影響範囲
+- 修正ファイル: 13個
+- 新規ファイル: 1個 (`url-builder.ts`)
+- 追加行数: 約350行
+
+### ビルド＆デプロイ
+- ✅ TypeScriptビルド完了
+- ✅ デプロイ完了（`/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`）
+
+### 動作確認項目
+- ✅ Rush Duelページでシャッフル・ソートボタンが表示される
+- ✅ Rush Duelページでデッキ画像作成が動作する
+- ✅ 画像URLが正しく`/rushdb/`を使用する
+- ✅ `ope=1`が省略されたデッキ表示ページでも動作する
+
+---
+
 ## 2025-11-18: ボタン押下時のアニメーション開始位置修正（完了）
 
 - **タイムスタンプ**: 2025-11-18 07:50
