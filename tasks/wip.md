@@ -1,6 +1,50 @@
 # 作業中のタスク
 
-## Rush Duel対応（OCG/Rush両対応化）（2025-11-18）
+## テストとドキュメント追加（2025-11-18）
+
+### 背景
+PR #10で導入された新規機能（PNG メタデータ、デッキ インポート/エクスポート、URL 状態管理等）に対して、品質保証とユーザビリティ向上のためテストとドキュメントを追加する。
+
+### 参照
+- レビュー結果: `docs/internal-reviews/reports/wip/test-doc-addition-plan.md`
+
+### 実装計画（優先度順）
+
+#### Week 1: 高優先度テストとドキュメント草案
+- [x] `tests/unit/png-metadata.test.ts` 作成 ✅ 完了（2025-11-18）
+  - tEXtチャンクの読み書き、複数チャンク対応、CRC検証、エラー処理
+  - PNGフィクスチャ作成（`tests/fixtures/png/`）
+  - 12個のテストケース、全て成功
+- [ ] `tests/unit/deck-import.test.ts` 作成
+  - YDK/JSON/PNGパース、フォーマット検証、Rush判定
+- [ ] `docs/usage/import-export.md` 草案作成
+  - 各フォーマット説明、操作手順、トラブルシューティング
+
+#### Week 2: 残りの高優先度テスト
+- [ ] `tests/unit/deck-export.test.ts` 作成
+  - 各形式出力の整合性、エスケープ、メタデータ保持
+  - エクスポート→インポートの往復テスト
+- [ ] `tests/unit/url-state.test.ts` 作成
+  - シリアライズ/デシリアライズ、デフォルト復元、不正パラメータ対処
+- [ ] `docs/usage/deck-metadata.md` 草案作成
+  - メタデータ各項目の説明とUI操作
+
+#### Week 3: 中優先度テストとE2E
+- [ ] `tests/unit/stores/settings.test.ts` 作成
+  - localStorage永続化、デフォルト適用、テーマ連携
+- [ ] E2E基本フロー初期実装
+  - デッキ編集→エクスポート→インポート
+  - Rush Duel表示、テーマ切替
+
+### Git管理
+- ブランチ: `feature/test-doc-implementation`
+
+### 次のアクション
+png-metadata.test.ts とテスト用PNGフィクスチャの実装から開始
+
+---
+
+## Rush Duel対応（OCG/Rush両対応化）（2025-11-18）✅ 完了
 
 ### 背景
 遊戯王公式ページには以下の2つのカードゲームがある：
