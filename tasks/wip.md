@@ -43,8 +43,9 @@ PR #10で導入された新規機能（PNG メタデータ、デッキ インポ
 ### Git管理
 - ブランチ: `feature/test-doc-implementation`
 
-### 次のアクション
-png-metadata.test.ts とテスト用PNGフィクスチャの実装から開始
+### 進捗サマリー
+- Week 1完了: 31個のテストケース実装、ユーザードキュメント1本作成
+- 次のアクション: Week 2のテスト実装（deck-export, url-state）
 
 ---
 
