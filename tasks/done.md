@@ -714,3 +714,40 @@
 - `tasks/wip.md`: 進捗記録
 
 ---
+
+## 2025-11-19: ビルド・デプロイ・テスト確認完了
+
+- **タイムスタンプ**: 2025-11-19 23:15 JST
+- **対象**: 内部レビュー対応（02, 04, 06, 08, 01）のビルド・デプロイ検証
+
+### 実施内容
+
+**テスト実行**:
+- 実行結果: 280 passed / 49 failed / 7 skipped (336 total)
+- ベースライン確認: origin/dev (127ed70) でも同じ49個の失敗
+- **評価**: ✅ 今回の変更による新規失敗なし（既存の問題）
+
+**失敗テスト内訳**（既存問題）:
+- combine/parser テスト（8ファイル）
+- CardInfo.test.ts（17テスト）
+- DeckSection.test.ts（5テスト）
+- png-metadata.test.ts
+- deck-edit.test.ts
+- extension-functionality.spec.js
+
+**ビルド実行**:
+- webpack 5.102.1 compiled successfully
+- warnings: サイズ制限超過（content.js: 487KB）— 既存警告
+- 出力: dist/ に正常生成
+
+**デプロイ実行**:
+- デプロイ先: `/home/tomo/user/Mine/_chex/src_ygoNeuronHelper`
+- rsync: 1.36MB転送完了
+- 拡張機能更新完了
+
+### 結論
+- ✅ 今回の変更（SortOrder型修正、Git履歴分析、ドキュメント作成）はテストに影響なし
+- ✅ ビルド・デプロイは正常
+- ⚠️ 既存の49個のテスト失敗は別タスクで対応が必要
+
+---
