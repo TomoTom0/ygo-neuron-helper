@@ -1,15 +1,29 @@
 # 作業中のタスク
 
-## 2025-11-19: 内部レビュー対応完了待ち
+## 2025-11-20: 内部レビュー対応（CI/CD改善）
 
-現在、以下のレポート対応を完了し、PRレビュー待ちです：
-- 02, 04, 06, 08: 完了（feature/internal-reviews-02-04-06-08 ブランチ）
-- 01: 調査完了、実装は保留
+### 対応中のレポート
 
-次のタスク候補：
-1. 残りのレビューレポート対応（05, 07, 09, 10, 11, 12）
-2. 01レポートPhase 1実装（アニメーション分離）
-3. v0.4.0の次期機能開発
+#### 09_ci-cd-review（CI/CDレビュー）+ 10_dependency-license-report（依存関係監査）
+- **優先度**: 🔴 高（開発効率・品質保証）
+- **対象**: GitHub Actions ワークフロー整備
+- **現状**:
+  - ワークフロー: `branch-protection.yml` のみ（ブランチポリシーチェック）
+  - ビルド/テスト自動化: なし
+  - 依存脆弱性: ✅ 0件（08レポートで既に解決済み）
+- **主要タスク**:
+  1. 高優先（🔴）:
+     - CI ワークフロー追加（build + test:unit）
+     - キャッシュ戦略導入（npm, Playwright）
+     - E2E実行ポリシー策定
+  2. 中優先（🟡）:
+     - Dependabot / Renovate 導入検討
+     - 最小権限設定
+  3. 低優先（🟢）:
+     - デプロイワークフロー（手動トリガー）
+- **レポート**: 
+  - `docs/internal-reviews/reports/wip/09_ci-cd-review.md`
+  - `docs/internal-reviews/reports/wip/10_dependency-license-report.md`
 
 ---
 
