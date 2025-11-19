@@ -12,29 +12,34 @@
 
 ### 実装計画
 
-#### Phase 1: 調査と設計
-- [ ] デッキ検索ページのHTML構造調査
-  - タグのselect要素のDOM構造確認
-  - optionタグから(value, text)ペアを取得する方法確認
-- [ ] データ構造設計
+#### Phase 1: 調査と設計 ✅ 完了（2025-11-19）
+- [x] デッキ検索ページのHTML構造調査
+  - 調査結果: `dckTagMst` selectが存在（1984行目）
+  - カテゴリ: `dckCategoryMst` select（400個以上）
+  - タグ: `dckTagMst` select（54個）
+- [x] データ構造設計
   - `DeckMetadata`インターフェースに`tags: Record<string, string>`追加
-  - 初期JSONファイル構造の設計
+  - `CategoryId`, `TagId`, `DeckTags`型定義を追加
+  - バリデーション関数を追加（`isValidCategoryId`, `isValidTagId`等）
 
-#### Phase 2: パーサー実装
-- [ ] `src/utils/deck-metadata-loader.ts`の修正
+#### Phase 2: パーサー実装 ✅ 完了（2025-11-19）
+- [x] `src/utils/deck-metadata-loader.ts`の修正
   - `updateDeckMetadata()`関数にタグ取得ロジック追加
-  - デッキ検索ページからタグマスターをパース
-  - chrome.storage.localへの保存処理追加
+  - デッキ検索ページから`dckTagMst` selectをパース
+  - chrome.storage.localへの保存処理追加（tagsフィールド）
 
-#### Phase 3: 初期データ作成
-- [ ] `src/data/deck-metadata.json`にタグマスター追加
-  - フォールバック用の初期データ作成
+#### Phase 3: 初期データ作成 ✅ 完了（2025-11-19）
+- [x] `src/data/deck-metadata.json`にタグマスター追加
+  - 54個のタグを追加（フォールバック用の初期データ）
   - 既存のカテゴリデータとの整合性確認
 
-#### Phase 4: UI有効化
-- [ ] `src/components/DeckMetadata.vue`の修正
-  - 空オブジェクトから実データへの切り替え
-  - タグ選択UIの動作確認
+#### Phase 4: UI有効化 ✅ 完了（2025-11-19）
+- [x] `src/components/DeckMetadata.vue`の修正
+  - タグドロップダウンをカテゴリと同じダイアログ形式に変更
+  - 検索・選択済みチップ・グリッド表示を実装
+  - `removeTag()`関数を追加
+  - DOM参照（tagButton, tagDropdown）を追加
+  - `tags.value = metadata.tags`で実データを読み込み
 
 #### Phase 5: テストとドキュメント
 - [ ] ユニットテストの作成
@@ -42,9 +47,11 @@
 - [ ] ドキュメント更新
 
 ### 完了条件
-- [ ] タグマスターデータの取得・保存が動作する
-- [ ] DeckMetadata.vueのタグ選択UIが機能する
+- [x] タグマスターデータの取得・保存が動作する ✅
+- [x] DeckMetadata.vueのタグ選択UIが機能する ✅
+- [x] 型定義を追加（CategoryId, TagId, DeckTags） ✅
 - [ ] テストが追加され、全て成功する
+- [ ] ビルド・デプロイ
 
 ### Git管理
 - ブランチ: `feature/tag-master-data`
