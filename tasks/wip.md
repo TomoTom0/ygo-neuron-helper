@@ -311,6 +311,13 @@ devブランチ（無限ループ発生）で追加された新機能の仕様�
   - オプション設定は完了（searchInputPosition: 'default' | 'section-title'）
   - DeckEditLayout/DeckEditTopBarの調査・実装が必要
 
+**UI改善追加** (2025-11-21 01:07):
+- ✅ Monster type色マッピング修正（MONSTER_TYPE_MAP統合）
+- ✅ タグ順序改善（グループ別ソート：attr → race → type → others）
+- ✅ Filter/Clearアイコン表示修正（SVG min-width/height設定）
+- ✅ CategoryDialogタブボタン高さ縮小
+- ✅ RightAreaタブのボーダー・ホバー効果追加
+
 ---
 
 ## 完了済みタスク
