@@ -269,7 +269,7 @@ PRのレビューコメントに返信する際は、`gh-reply`コマンドを�
 # PRのレビューコメント一覧を取得
 gh-reply comment list <PR番号>
 
-# ドラフト返信を追加
+# ドラフト返信を追加 (comment listで取得したthreadIdを指定)
 gh-reply draft add <PR番号> <threadId> "返信内容"
 
 # ドラフト一覧を確認
